@@ -10,12 +10,18 @@ struct ZebuZ80CPU {
     ix: u16,
     iy: u16,
     sp: u16,
-    pc: Wrapping<u16>
+    pc: Wrapping<u16>,
+    t_cycles: u8
 }
 
 impl ZebuZ80CPU {
-    pub fn nop(&mut self) {
-        self.pc += Wrapping(1);
+    pub fn clock(&mut self, bus: &ZebuZ80Bus) {
+        if self.t_cycles == 0 {
+            let data = bus.read(self.pc.0);
+            self.pc += Wrapping(1);
+            self.t_cycles = 4;
+        }
+        self.t_cycles -= 1;
     }
 }
 
@@ -31,10 +37,38 @@ fn print_state(cpu: &ZebuZ80CPU) {
     println!("PC: {:04X}", cpu.pc);
 }
 
+struct ZebuZ80Bus<'a> {
+    mem: &'a mut [u8; 64 * 1024]
+}
+
+impl<'a> ZebuZ80Bus<'a> {
+    pub fn read(&self, addr: u16) -> u8 {
+        self.mem[usize::from(addr)]
+    }
+}
+
+struct ZebuZ80Machine<'a> {
+    cpu: &'a mut ZebuZ80CPU,
+    bus: ZebuZ80Bus<'a>
+}
+
+impl<'a> ZebuZ80Machine<'a> {
+    pub fn new(cpu: &'a mut ZebuZ80CPU, mem: &'a mut [u8; 64 * 1024]) -> ZebuZ80Machine<'a> {
+        ZebuZ80Machine {
+            cpu: cpu,
+            bus: ZebuZ80Bus {
+                mem: mem
+            }
+        }
+    }
+
+    pub fn clock(&mut self) {
+        self.cpu.clock(&self.bus);
+    }
+}
+
 fn main() {
     println!("zebu");
-    let device_state = DeviceState::new();
-    let mut sys_cycles = Wrapping(0usize);
 
     let mut cpu = ZebuZ80CPU {
         a: 0, f: 0, a_alt: 0, f_alt: 0,
@@ -45,24 +79,28 @@ fn main() {
         ix: 0,
         iy: 0,
         sp: 0,
-        pc: Wrapping(0)
+        pc: Wrapping(0),
+        t_cycles: 0
     };
-
+    let mut mem = [0; 64 * 1024];
+    let mut machine = ZebuZ80Machine::new(&mut cpu, &mut mem);
+    
+    let mut t_cycles = Wrapping(0usize);
+    let device_state = DeviceState::new();
     let mut old_keys: Vec<Keycode> = Vec::new();
-
     loop {
         let new_keys: Vec<Keycode> = device_state.get_keys();
         let pressed_keys: Vec<_> = new_keys.iter().filter(|k| !old_keys.contains(k)).cloned().collect();
         old_keys = new_keys;
         if pressed_keys.contains(&Keycode::S) {
-                print_state(&cpu);
-                println!("T: {}", sys_cycles);
+            print_state(&machine.cpu);
+            println!("T: {}", t_cycles);
         }
         if pressed_keys.contains(&Keycode::Space) {
-            cpu.nop();
-            sys_cycles += Wrapping(4);
-            print_state(&cpu);
-            println!("T: {}", sys_cycles);
+            machine.clock();
+            t_cycles += Wrapping(1);
+            print_state(&machine.cpu);
+            println!("T: {}", t_cycles);
         }
     }
 }

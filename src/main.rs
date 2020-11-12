@@ -38,12 +38,12 @@ fn print_state(cpu: &ZebuZ80CPU) {
 }
 
 struct ZebuZ80Bus<'a> {
-    mem: &'a mut [u8; 64 * 1024]
+    ram: &'a mut [u8; 64 * 1024]
 }
 
 impl<'a> ZebuZ80Bus<'a> {
     pub fn read(&self, addr: u16) -> u8 {
-        self.mem[usize::from(addr)]
+        self.ram[usize::from(addr)]
     }
 }
 
@@ -53,11 +53,11 @@ struct ZebuZ80Machine<'a> {
 }
 
 impl<'a> ZebuZ80Machine<'a> {
-    pub fn new(cpu: &'a mut ZebuZ80CPU, mem: &'a mut [u8; 64 * 1024]) -> ZebuZ80Machine<'a> {
+    pub fn new(cpu: &'a mut ZebuZ80CPU, ram: &'a mut [u8; 64 * 1024]) -> ZebuZ80Machine<'a> {
         ZebuZ80Machine {
             cpu: cpu,
             bus: ZebuZ80Bus {
-                mem: mem
+                ram: ram
             }
         }
     }
@@ -82,8 +82,8 @@ fn main() {
         pc: Wrapping(0),
         t_cycles: 0
     };
-    let mut mem = [0; 64 * 1024];
-    let mut machine = ZebuZ80Machine::new(&mut cpu, &mut mem);
+    let mut ram = [0; 64 * 1024];
+    let mut machine = ZebuZ80Machine::new(&mut cpu, &mut ram);
     
     let mut t_cycles = Wrapping(0usize);
     let device_state = DeviceState::new();

@@ -12,7 +12,8 @@ pub struct Z80CPU {
     iy: u16,
     sp: u16,
     pc: Wrapping<u16>,
-    t_cycles: u8
+    t_cycles: u8,
+    opcode: u8
 }
 
 impl Z80CPU {
@@ -27,18 +28,37 @@ impl Z80CPU {
             iy: 0,
             sp: 0,
             pc: Wrapping(0),
-            t_cycles: 0
+            t_cycles: 0,
+            opcode: 0
         }
     }
 
     pub fn clock(&mut self, bus: &mut ZebuZ80Bus) {
         if self.t_cycles == 0 {
-            let mut data = bus.read(self.pc.0);
-            data = !data;
-            bus.write(self.pc.0, data);
+            self.opcode = bus.read(self.pc.0);
             self.pc += Wrapping(1);
-            self.t_cycles = 4;
+            if self.opcode == 0x3e {
+                self.t_cycles = 7;
+                let n = bus.read(self.pc.0);
+                self.pc += Wrapping(1);
+                self.a = n;
+            } else if self.opcode == 0x21 {
+                self.t_cycles = 10;
+                let n_low = bus.read(self.pc.0);
+                self.pc += Wrapping(1);
+                self.l = n_low;
+                let n_high = bus.read(self.pc.0);
+                self.pc += Wrapping(1);
+                self.h = n_high;
+            } else if self.opcode == 0x77 {
+                self.t_cycles = 7;
+                let hl = (u16::from(self.h) << 8) + u16:: from(self.l);
+                bus.write(hl, self.a);
+            } else {
+                self.t_cycles = 4;
+            }
         }
+
         self.t_cycles -= 1;
     }
 

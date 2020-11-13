@@ -10,8 +10,14 @@ fn main() {
     println!("Zebu");
 
     let mut cpu = Z80CPU::new();
-    let mut ram = [0; 64 * 1024];
-    let mut machine = Z80Machine::new(&mut cpu, &mut ram);
+    let rom = [
+        0x3e, 0x2a, // LD A, 42
+        0x21, 0x01, 0x00, // LD HL, 1
+        0x77  // LD (HL), A
+    ];
+    let mut ram = [0; 48 * 1024];
+
+    let mut machine = Z80Machine::new(&mut cpu, &rom, &mut ram);
     
     let mut t_cycles = Wrapping(0usize);
     let device_state = DeviceState::new();

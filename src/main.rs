@@ -3,8 +3,28 @@ use std::num::Wrapping;
 
 mod cpu;
 mod machine;
-use cpu::Z80CPU;
+use cpu::{Z80CPU, Z80CPUState};
 use machine::Z80Machine;
+
+fn print_cpu_state(state: Z80CPUState) {
+    println!("AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
+    println!("BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
+    println!("DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
+    println!("HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
+    println!("I: {:02X}, R: {:02X}", state.i, state.r);
+    println!("IX: {:04X}", state.ix);
+    println!("IY: {:04X}", state.iy);
+    println!("SP: {:04X}", state.sp);
+    println!("PC: {:04X}", state.pc);
+}
+
+pub fn print_ram_slice_state(ram_slice: &[u8]) {
+    print!(" M:");
+    for byte in ram_slice.iter() {
+        print!(" {:02X}", byte);
+    }
+    println!();
+}
 
 fn main() {
     println!("Zebu");
@@ -31,13 +51,15 @@ fn main() {
     while let Some(e) = window.next() {
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if key == Key::S {
-                machine.print_state();
-                println!("T: {}", t_cycles);
+                print_cpu_state(machine.get_cpu_state());
+                print_ram_slice_state(machine.get_ram_slice_state(0, 4));
+                println!(" T: {}", t_cycles);
             } else if key == Key::Space {
                 machine.clock();
                 t_cycles += Wrapping(1);
-                machine.print_state();
-                println!("T: {}", t_cycles);
+                print_cpu_state(machine.get_cpu_state());
+                print_ram_slice_state(machine.get_ram_slice_state(0, 4));
+                println!(" T: {}", t_cycles);
             }
         }
         window.draw_2d(&e, |c, g, device| {

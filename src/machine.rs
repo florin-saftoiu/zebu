@@ -1,4 +1,4 @@
-use crate::cpu::Z80CPU;
+use crate::cpu::{Z80CPU, Z80CPUState};
 
 pub struct ZebuZ80Bus<'a> {
     rom: &'a [u8; 6],
@@ -12,16 +12,6 @@ impl<'a> ZebuZ80Bus<'a> {
 
     pub fn write(&mut self, addr: u16, data: u8) {
         self.ram[usize::from(addr)] = data;
-    }
-
-    pub fn print_ram_state(&self, start: usize, len: usize) {
-        print!("M:");
-        let mut offset = 0;
-        while offset < len {
-            print!(" {:02X}", self.ram[start + offset]);
-            offset += 1;
-        }
-        println!();
     }
 }
 
@@ -45,8 +35,11 @@ impl<'a> Z80Machine<'a> {
         self.cpu.clock(&mut self.bus);
     }
 
-    pub fn print_state(&self) {
-        self.cpu.print_state();
-        self.bus.print_ram_state(0, 4);
+    pub fn get_cpu_state(&self) -> Z80CPUState {
+        self.cpu.get_state()
+    }
+
+    pub fn get_ram_slice_state(&self, start: usize, len: usize) -> &[u8] {
+        &self.bus.ram[start..len]
     }
 }

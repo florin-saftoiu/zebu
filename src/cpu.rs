@@ -16,6 +16,18 @@ pub struct Z80CPU {
     opcode: u8
 }
 
+pub struct Z80CPUState {
+    pub a: u8, pub f: u8, pub a_alt: u8, pub f_alt: u8,
+    pub d: u8, pub e: u8, pub d_alt: u8, pub e_alt: u8,
+    pub h: u8, pub l: u8, pub h_alt: u8, pub l_alt: u8,
+    pub b: u8, pub c: u8, pub b_alt: u8, pub c_alt: u8,
+    pub i: u8, pub r: u8,
+    pub ix: u16,
+    pub iy: u16,
+    pub sp: u16,
+    pub pc: u16
+}
+
 impl Z80CPU {
     pub fn new() -> Z80CPU {
         Z80CPU {
@@ -62,15 +74,17 @@ impl Z80CPU {
         self.t_cycles -= 1;
     }
 
-    pub fn print_state(&self) {
-        println!("AF: {:02X}{:02X} AF': {:02X}{:02X}", self.a, self.f, self.a_alt, self.f_alt);
-        println!("BC: {:02X}{:02X} BC': {:02X}{:02X}", self.b, self.c, self.b_alt, self.c_alt);
-        println!("DE: {:02X}{:02X} DE': {:02X}{:02X}", self.d, self.e, self.d_alt, self.e_alt);
-        println!("HL: {:02X}{:02X} HL': {:02X}{:02X}", self.h, self.l, self.h_alt, self.l_alt);
-        println!("I: {:02X}, R: {:02X}", self.i, self.r);
-        println!("IX: {:04X}", self.ix);
-        println!("IY: {:04X}", self.iy);
-        println!("SP: {:04X}", self.sp);
-        println!("PC: {:04X}", self.pc);
+    pub fn get_state(&self) -> Z80CPUState {
+        Z80CPUState {
+            a: self.a, f: self.f, a_alt: self.a_alt, f_alt: self.f_alt,
+            b: self.b, c: self.c, b_alt: self.b_alt, c_alt: self.c_alt,
+            d: self.d, e: self.e, d_alt: self.d_alt, e_alt: self.e_alt,
+            h: self.h, l: self.l, h_alt: self.h_alt, l_alt: self.l_alt,
+            i: self.i, r: self.r,
+            ix: self.ix,
+            iy: self.iy,
+            sp: self.sp,
+            pc: self.pc.0
+        }
     }
 }

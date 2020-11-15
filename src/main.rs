@@ -1,5 +1,7 @@
-use piston_window::*;
 use std::num::Wrapping;
+use std::fmt::Write;
+
+use piston_window::*;
 
 mod cpu;
 mod machine;
@@ -11,19 +13,54 @@ fn print_cpu_state(state: Z80CPUState) {
     println!("BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
     println!("DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
     println!("HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
-    println!("I: {:02X}, R: {:02X}", state.i, state.r);
+    println!(" I: {:02X},    R: {:02X}", state.i, state.r);
     println!("IX: {:04X}", state.ix);
     println!("IY: {:04X}", state.iy);
     println!("SP: {:04X}", state.sp);
     println!("PC: {:04X}", state.pc);
 }
 
-pub fn print_ram_slice_state(ram_slice: &[u8]) {
+fn print_ram_slice_state(ram_slice: &[u8]) {
     print!(" M:");
     for byte in ram_slice.iter() {
         print!(" {:02X}", byte);
     }
     println!();
+}
+
+fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    let mut cpu_string = String::new();
+    write!(
+        cpu_string,
+        "AF: {:02X}{:02X} AF': {:02X}{:02X}",
+        state.a,
+        state.f,
+        state.a_alt,
+        state.f_alt
+    ).unwrap();
+    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+        &cpu_string,
+        glyphs,
+        &c.draw_state,
+        c.transform.trans(528.0, 28.0),
+        g
+    ).unwrap();
+}
+
+fn draw_ram_slice_state(ram_slice: &[u8], c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    let mut ram_string = String::new();
+    for byte in ram_slice.iter() {
+        write!(ram_string, "{:02X} ", byte).unwrap();
+    }
+    writeln!(ram_string).unwrap();
+
+    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+        &ram_string,
+        glyphs,
+        &c.draw_state,
+        c.transform.trans(8.0, 420.0),
+        g
+    ).unwrap();
 }
 
 fn main() {
@@ -67,13 +104,8 @@ fn main() {
             rectangle([0.0, 0.0, 0.0, 1.0],
                       [8.0, 8.0, 512.0, 384.0],
                       c.transform, g);
-            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
-                "Zebu",
-                &mut glyphs,
-                &c.draw_state,
-                c.transform.trans(528.0, 28.0),
-                g
-            ).unwrap();
+            draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
+            draw_ram_slice_state(machine.get_ram_slice_state(0, 4), c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });

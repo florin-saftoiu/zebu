@@ -13,7 +13,7 @@ fn print_cpu_state(state: Z80CPUState) {
     println!("BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
     println!("DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
     println!("HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
-    println!(" I: {:02X},    R: {:02X}", state.i, state.r);
+    println!(" I: {:02X}     R: {:02X}", state.i, state.r);
     println!("IX: {:04X}", state.ix);
     println!("IY: {:04X}", state.iy);
     println!("SP: {:04X}", state.sp);
@@ -22,45 +22,74 @@ fn print_cpu_state(state: Z80CPUState) {
 
 fn print_ram_slice_state(ram_slice: &[u8]) {
     print!(" M:");
+    let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
         print!(" {:02X}", byte);
+        nb_bytes += 1;
+        if nb_bytes == 16 {
+            print!("\n   ");
+            nb_bytes = 0;
+        }
     }
     println!();
 }
 
 fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
-    let mut cpu_string = String::new();
-    write!(
-        cpu_string,
-        "AF: {:02X}{:02X} AF': {:02X}{:02X}",
-        state.a,
-        state.f,
-        state.a_alt,
-        state.f_alt
-    ).unwrap();
-    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
-        &cpu_string,
-        glyphs,
-        &c.draw_state,
-        c.transform.trans(528.0, 28.0),
-        g
-    ).unwrap();
+    let lines = format!(
+        "AF: {:02X}{:02X} AF': {:02X}{:02X}\n\
+         BC: {:02X}{:02X} BC': {:02X}{:02X}\n\
+         DE: {:02X}{:02X} DE': {:02X}{:02X}\n\
+         HL: {:02X}{:02X} HL': {:02X}{:02X}\n\
+         \x20I: {:02X}     R: {:02X}\n\
+         IX: {:04X}\n\
+         IY: {:04X}\n\
+         SP: {:04X}\n\
+         PC: {:04X}",
+        state.a, state.f, state.a_alt, state.f_alt,
+        state.b, state.c, state.b_alt, state.c_alt,
+        state.d, state.e, state.d_alt, state.e_alt,
+        state.h, state.l, state.h_alt, state.l_alt,
+        state.i, state.r,
+        state.ix,
+        state.iy,
+        state.sp,
+        state.pc
+    );
+    let mut y = 28.0;
+    for line in lines.split("\n") {
+        text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+            &line,
+            glyphs,
+            &c.draw_state,
+            c.transform.trans(528.0, y),
+            g
+        ).unwrap();
+        y += 20.0;
+    }
 }
 
 fn draw_ram_slice_state(ram_slice: &[u8], c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
     let mut ram_string = String::new();
+    let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
         write!(ram_string, "{:02X} ", byte).unwrap();
+        nb_bytes += 1;
+        if nb_bytes == 16 {
+            writeln!(ram_string).unwrap();
+            nb_bytes = 0;
+        }
     }
-    writeln!(ram_string).unwrap();
-
-    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
-        &ram_string,
-        glyphs,
-        &c.draw_state,
-        c.transform.trans(8.0, 420.0),
-        g
-    ).unwrap();
+    let mut y = 420.0;
+    for line in ram_string.split("\n") {
+        text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+            &line,
+            glyphs,
+            &c.draw_state,
+            c.transform.trans(8.0, y),
+            g
+        ).unwrap();
+        y += 20.0;
+    }
 }
 
 fn main() {
@@ -88,15 +117,15 @@ fn main() {
     while let Some(e) = window.next() {
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if key == Key::S {
-                print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 4));
                 println!(" T: {}", t_cycles);
+                print_cpu_state(machine.get_cpu_state());
+                print_ram_slice_state(machine.get_ram_slice_state(0, 32));
             } else if key == Key::Space {
                 machine.clock();
                 t_cycles += Wrapping(1);
-                print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 4));
                 println!(" T: {}", t_cycles);
+                print_cpu_state(machine.get_cpu_state());
+                print_ram_slice_state(machine.get_ram_slice_state(0, 32));
             }
         }
         window.draw_2d(&e, |c, g, device| {
@@ -105,10 +134,10 @@ fn main() {
                       [8.0, 8.0, 512.0, 384.0],
                       c.transform, g);
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
-            draw_ram_slice_state(machine.get_ram_slice_state(0, 4), c, g, &mut glyphs);
+            draw_ram_slice_state(machine.get_ram_slice_state(0, 32), c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });
-
+        window.set_title(format!("Zebu - T: {}", t_cycles));
     }
 }

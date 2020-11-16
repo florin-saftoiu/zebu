@@ -154,25 +154,51 @@ fn main() -> io::Result<()> {
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
 
     let mut t_cycles = Wrapping(0usize);
+    let mut paused = true;
     while let Some(e) = window.next() {
-        if let Some(Button::Keyboard(key)) = e.press_args() {
-            if key == Key::S {
-                println!("   T: {}", t_cycles);
-                print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
-            } else if key == Key::Space {
-                loop {
-                    machine.clock();
-                    t_cycles += Wrapping(1);
-                    if machine.cpu_instruction_complete() {
-                        break;
+        if paused {
+            if let Some(Button::Keyboard(key)) = e.press_args() {
+                if key == Key::S {
+                    println!("   T: {}", t_cycles);
+                    print_cpu_state(machine.get_cpu_state());
+                    print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                    print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                } else if key == Key::F10 {
+                    loop {
+                        machine.clock();
+                        t_cycles += Wrapping(1);
+                        if machine.cpu_instruction_complete() {
+                            break;
+                        }
+                    }
+                    println!("   T: {}", t_cycles);
+                    print_cpu_state(machine.get_cpu_state());
+                    print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                    print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                } else if key == Key::F5 {
+                    paused = false;
+                }
+            }
+         } else {
+            if let Some(Button::Keyboard(key)) = e.press_args() {
+                if key == Key::F6 {
+                    paused = true;
+                    // finish current instruction before pausing
+                    if !machine.cpu_instruction_complete() {
+                        loop {
+                            machine.clock();
+                            t_cycles += Wrapping(1);
+                            if machine.cpu_instruction_complete() {
+                                break;
+                            }
+                        }
                     }
                 }
-                println!("   T: {}", t_cycles);
-                print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+            }
+            // user may have just paused and finished the current instruction
+            if !paused {
+                machine.clock();
+                t_cycles += Wrapping(1);
             }
         }
         window.draw_2d(&e, |c, g, device| {

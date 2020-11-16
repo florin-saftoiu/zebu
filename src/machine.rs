@@ -1,11 +1,11 @@
 use crate::cpu::{Z80CPU, Z80CPUState};
 
-pub struct ZebuZ80Bus<'a> {
+pub struct Z80Bus<'a> {
     rom: &'a [u8; 16 * 1024],
     ram: &'a mut [u8; 48 * 1024]
 }
 
-impl<'a> ZebuZ80Bus<'a> {
+impl<'a> Z80Bus<'a> {
     pub fn read(&self, addr: u16) -> u8 {
         if addr < 0x4000 {
             self.rom[usize::from(addr % 6)]
@@ -25,14 +25,14 @@ impl<'a> ZebuZ80Bus<'a> {
 
 pub struct Z80Machine<'a> {
     cpu: &'a mut Z80CPU,
-    bus: ZebuZ80Bus<'a>
+    bus: Z80Bus<'a>
 }
 
 impl<'a> Z80Machine<'a> {
     pub fn new(cpu: &'a mut Z80CPU, rom: &'a [u8; 16 * 1024], ram: &'a mut [u8; 48 * 1024]) -> Z80Machine<'a> {
         Z80Machine {
             cpu: cpu,
-            bus: ZebuZ80Bus {
+            bus: Z80Bus {
                 rom: rom,
                 ram: ram
             }
@@ -45,6 +45,10 @@ impl<'a> Z80Machine<'a> {
 
     pub fn cpu_instruction_complete(&self) -> bool {
         self.cpu.instruction_complete()
+    }
+
+    pub fn get_next_cpu_instructions(&self, nb: usize) -> Vec<String> {
+        self.cpu.get_next_instructions(&self.bus, nb)
     }
 
     pub fn get_cpu_state(&self) -> Z80CPUState {

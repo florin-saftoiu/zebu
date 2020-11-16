@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use crate::machine::ZebuZ80Bus;
+use crate::machine::Z80Bus;
 
 pub struct Z80CPU {
     a: u8, f: u8, a_alt: u8, f_alt: u8,
@@ -45,7 +45,7 @@ impl Z80CPU {
         }
     }
 
-    pub fn clock(&mut self, bus: &mut ZebuZ80Bus) {
+    pub fn clock(&mut self, bus: &mut Z80Bus) {
         if self.t_cycles == 0 {
             self.opcode = bus.read(self.pc.0);
             self.pc += Wrapping(1);
@@ -76,6 +76,10 @@ impl Z80CPU {
 
     pub fn instruction_complete(&self) -> bool {
         self.t_cycles == 0
+    }
+
+    pub fn get_next_instructions(&self, bus: &Z80Bus, nb: usize) -> Vec<String> {
+        vec![String::new(); nb]
     }
 
     pub fn get_state(&self) -> Z80CPUState {

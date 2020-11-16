@@ -33,7 +33,7 @@ fn print_cpu_state(state: Z80CPUState) {
     println!("  PC: {:04X}", state.pc);
 }
 
-fn print_ram_slice_state(ram_slice : &[u8], offset: u16) {
+fn print_ram_slice_state(ram_slice: &[u8], offset: u16) {
     let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
         if nb_bytes % 16 == 0 {
@@ -46,6 +46,12 @@ fn print_ram_slice_state(ram_slice : &[u8], offset: u16) {
         nb_bytes += 1;
     }
     println!();
+}
+
+fn print_next_cpu_instructions(instructions: Vec<String>) {
+    for instruction in instructions {
+        println!("{}", instruction);
+    }
 }
 
 fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
@@ -134,6 +140,7 @@ fn main() -> io::Result<()> {
                 println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
             } else if key == Key::Space {
                 loop {
                     machine.clock();
@@ -145,6 +152,7 @@ fn main() -> io::Result<()> {
                 println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
             }
         }
         window.draw_2d(&e, |c, g, device| {

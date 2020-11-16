@@ -74,6 +74,10 @@ impl Z80CPU {
         self.t_cycles -= 1;
     }
 
+    pub fn instruction_complete(&self) -> bool {
+        self.t_cycles == 0
+    }
+
     pub fn get_state(&self) -> Z80CPUState {
         Z80CPUState {
             a: self.a, f: self.f, a_alt: self.a_alt, f_alt: self.f_alt,

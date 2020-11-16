@@ -124,8 +124,13 @@ fn main() {
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32));
             } else if key == Key::Space {
-                machine.clock();
-                t_cycles += Wrapping(1);
+                loop {
+                    machine.clock();
+                    t_cycles += Wrapping(1);
+                    if machine.cpu_instruction_complete() {
+                        break;
+                    }
+                }
                 println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32));

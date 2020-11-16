@@ -35,6 +35,10 @@ impl<'a> Z80Machine<'a> {
         self.cpu.clock(&mut self.bus);
     }
 
+    pub fn cpu_instruction_complete(&self) -> bool {
+        self.cpu.instruction_complete()
+    }
+
     pub fn get_cpu_state(&self) -> Z80CPUState {
         self.cpu.get_state()
     }

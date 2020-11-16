@@ -20,14 +20,14 @@ fn print_cpu_state(state: Z80CPUState) {
     println!("  PC: {:04X}", state.pc);
 }
 
-fn print_ram_slice_state(ram_slice : &[u8]) {
+fn print_ram_slice_state(ram_slice : &[u8], offset: u16) {
     let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
         if nb_bytes % 16 == 0 {
             if nb_bytes != 0 {
                 println!();
             }
-            print!("{:04X}: ", nb_bytes);
+            print!("{:04X}: ", offset + nb_bytes);
         }
         print!("{:02X} ", byte);
         nb_bytes += 1;
@@ -69,7 +69,7 @@ fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyp
     }
 }
 
-fn draw_ram_slice_state(ram_slice: &[u8], c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+fn draw_ram_slice_state(ram_slice: &[u8], offset: u16, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
     let mut ram_string = String::new();
     let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
@@ -77,7 +77,7 @@ fn draw_ram_slice_state(ram_slice: &[u8], c: Context, g: &mut G2d, glyphs: &mut 
             if nb_bytes != 0 {
                 writeln!(ram_string).unwrap();
             }
-            write!(ram_string, "{:04X}: ", nb_bytes).unwrap();
+            write!(ram_string, "{:04X}: ", offset + nb_bytes).unwrap();
         }
         write!(ram_string, "{:02X} ", byte).unwrap();
         nb_bytes += 1;
@@ -122,7 +122,7 @@ fn main() {
             if key == Key::S {
                 println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 32));
+                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
             } else if key == Key::Space {
                 loop {
                     machine.clock();
@@ -133,7 +133,7 @@ fn main() {
                 }
                 println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
-                print_ram_slice_state(machine.get_ram_slice_state(0, 32));
+                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
             }
         }
         window.draw_2d(&e, |c, g, device| {
@@ -142,7 +142,7 @@ fn main() {
                       [8.0, 8.0, 512.0, 384.0],
                       c.transform, g);
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
-            draw_ram_slice_state(machine.get_ram_slice_state(0, 32), c, g, &mut glyphs);
+            draw_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000, c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });

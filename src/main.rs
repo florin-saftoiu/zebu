@@ -9,27 +9,28 @@ use cpu::{Z80CPU, Z80CPUState};
 use machine::Z80Machine;
 
 fn print_cpu_state(state: Z80CPUState) {
-    println!("AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
-    println!("BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
-    println!("DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
-    println!("HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
-    println!(" I: {:02X}     R: {:02X}", state.i, state.r);
-    println!("IX: {:04X}", state.ix);
-    println!("IY: {:04X}", state.iy);
-    println!("SP: {:04X}", state.sp);
-    println!("PC: {:04X}", state.pc);
+    println!("  AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
+    println!("  BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
+    println!("  DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
+    println!("  HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
+    println!("   I: {:02X}     R: {:02X}", state.i, state.r);
+    println!("  IX: {:04X}", state.ix);
+    println!("  IY: {:04X}", state.iy);
+    println!("  SP: {:04X}", state.sp);
+    println!("  PC: {:04X}", state.pc);
 }
 
-fn print_ram_slice_state(ram_slice: &[u8]) {
-    print!(" M:");
+fn print_ram_slice_state(ram_slice : &[u8]) {
     let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
-        print!(" {:02X}", byte);
-        nb_bytes += 1;
-        if nb_bytes == 16 {
-            print!("\n   ");
-            nb_bytes = 0;
+        if nb_bytes % 16 == 0 {
+            if nb_bytes != 0 {
+                println!();
+            }
+            print!("{:04X}: ", nb_bytes);
         }
+        print!("{:02X} ", byte);
+        nb_bytes += 1;
     }
     println!();
 }
@@ -72,12 +73,14 @@ fn draw_ram_slice_state(ram_slice: &[u8], c: Context, g: &mut G2d, glyphs: &mut 
     let mut ram_string = String::new();
     let mut nb_bytes = 0;
     for byte in ram_slice.iter() {
+        if nb_bytes % 16 == 0 {
+            if nb_bytes != 0 {
+                writeln!(ram_string).unwrap();
+            }
+            write!(ram_string, "{:04X}: ", nb_bytes).unwrap();
+        }
         write!(ram_string, "{:02X} ", byte).unwrap();
         nb_bytes += 1;
-        if nb_bytes == 16 {
-            writeln!(ram_string).unwrap();
-            nb_bytes = 0;
-        }
     }
     let mut y = 420.0;
     for line in ram_string.split("\n") {
@@ -117,13 +120,13 @@ fn main() {
     while let Some(e) = window.next() {
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if key == Key::S {
-                println!(" T: {}", t_cycles);
+                println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32));
             } else if key == Key::Space {
                 machine.clock();
                 t_cycles += Wrapping(1);
-                println!(" T: {}", t_cycles);
+                println!("   T: {}", t_cycles);
                 print_cpu_state(machine.get_cpu_state());
                 print_ram_slice_state(machine.get_ram_slice_state(0, 32));
             }

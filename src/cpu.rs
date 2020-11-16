@@ -79,7 +79,28 @@ impl Z80CPU {
     }
 
     pub fn get_next_instructions(&self, bus: &Z80Bus, nb: usize) -> Vec<String> {
-        vec![String::new(); nb]
+        let mut instructions = vec![];
+        let mut pc = self.pc.0;
+        while instructions.len() < nb {
+            let opcode = bus.read(pc);
+            pc += 1;
+            if opcode == 0x3e {
+                let n = bus.read(pc);
+                pc += 1;
+                instructions.push(format!("{:04X} LD A, {:X}", pc - 2, n));
+            } else if opcode == 0x21 {
+                let n_low = bus.read(pc);
+                pc += 1;
+                let n_high = bus.read(pc);
+                pc += 1;
+                instructions.push(format!("{:04X} LD HL, {:X}", pc - 3, (u16::from(n_high) << 8) + u16::from(n_low)));
+            } else if opcode == 0x77 {
+                instructions.push(format!("{:04X} LD (HL), A", pc - 1));
+            } else {
+                instructions.push(format!("{:04X} NOP", pc - 1));
+            }
+        }
+        instructions
     }
 
     pub fn get_state(&self) -> Z80CPUState {

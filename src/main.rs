@@ -20,6 +20,7 @@ const SCREEN_SCALE: f64 = 2.0;
 const BACKGROUND: [f32; 4] = [0.0, 0.478, 0.8, 1.0];
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 
 fn print_cpu_state(state: Z80CPUState) {
     println!("  AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
@@ -49,8 +50,13 @@ fn print_ram_slice_state(ram_slice: &[u8], offset: u16) {
 }
 
 fn print_next_cpu_instructions(instructions: Vec<String>) {
-    for instruction in instructions {
-        println!("{}", instruction);
+    for i in 0..instructions.len() {
+        if i == 0 {
+            print!(">");
+        } else {
+            print!(" ")
+        }
+        println!("{}", instructions[i]);
     }
 }
 
@@ -114,6 +120,20 @@ fn draw_ram_slice_state(ram_slice: &[u8], offset: u16, c: Context, g: &mut G2d, 
     }
 }
 
+fn draw_next_cpu_instructions(instructions: Vec<String>, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    let mut y = WINDOW_PADDING + WINDOW_FONTSIZE;
+    for i in 0..instructions.len() {
+        text::Text::new_color(if i == 0 { YELLOW } else { WHITE }, WINDOW_FONTSIZE as u32).draw(
+            &instructions[i],
+            glyphs,
+            &c.draw_state,
+            c.transform.trans(WINDOW_PADDING + SCREEN_WIDTH * SCREEN_SCALE + WINDOW_PADDING + 240.0, y),
+            g
+        ).unwrap();
+        y += WINDOW_FONTSIZE;
+    }
+}
+
 fn main() -> io::Result<()> {
     println!("Zebu");
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
@@ -161,7 +181,8 @@ fn main() -> io::Result<()> {
                       [WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE],
                       c.transform, g);
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
-            draw_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000, c, g, &mut glyphs);
+            draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
+            draw_next_cpu_instructions(machine.get_next_cpu_instructions(10), c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });

@@ -8,7 +8,7 @@ pub struct Z80Bus<'a> {
 impl<'a> Z80Bus<'a> {
     pub fn read(&self, addr: u16) -> u8 {
         if addr < 0x4000 {
-            self.rom[usize::from(addr % 6)]
+            self.rom[usize::from(addr)]
         } else {
             self.ram[usize::from(addr)]
         }

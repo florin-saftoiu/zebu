@@ -1,3 +1,5 @@
+use std::cmp;
+
 use crate::cpu::{Z80CPU, Z80CPUState};
 
 pub struct Z80Bus<'a> {
@@ -56,6 +58,14 @@ impl<'a> Z80Machine<'a> {
     }
 
     pub fn get_ram_slice_state(&self, start: usize, len: usize) -> &[u8] {
-        &self.bus.ram[start..len]
+        &self.bus.ram[start..cmp::min(start + len, 0xFFFF - 0x4000 + 1)]
+    }
+
+    pub fn get_stack_slice_state(&self, start: usize, len: usize) -> Result<&[u8], &str> {
+        let sp = usize::from(self.cpu.get_state().sp);
+        if sp < 0x4000 {
+            return Err("INVALID SP");
+        }
+        Ok(&self.bus.ram[sp - 0x4000 + start..cmp::min(sp - 0x4000 + start + len, 0xFFFF - 0x4000 + 1)])
     }
 }

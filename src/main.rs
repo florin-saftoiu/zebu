@@ -23,15 +23,15 @@ const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 
 fn print_cpu_state(state: Z80CPUState) {
-    println!("  AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
-    println!("  BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
-    println!("  DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
-    println!("  HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
-    println!("   I: {:02X}     R: {:02X}", state.i, state.r);
-    println!("  IX: {:04X}", state.ix);
-    println!("  IY: {:04X}", state.iy);
-    println!("  SP: {:04X}", state.sp);
-    println!("  PC: {:04X}", state.pc);
+    println!("   AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
+    println!("   BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
+    println!("   DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
+    println!("   HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
+    println!("    I: {:02X}     R: {:02X}", state.i, state.r);
+    println!("   IX: {:04X}", state.ix);
+    println!("   IY: {:04X}", state.iy);
+    println!("   SP: {:04X}", state.sp);
+    println!("   PC: {:04X}", state.pc);
 }
 
 fn print_ram_slice_state(ram_slice: &[u8], offset: u16) {
@@ -41,7 +41,7 @@ fn print_ram_slice_state(ram_slice: &[u8], offset: u16) {
             if nb_bytes != 0 {
                 println!();
             }
-            print!("{:04X}: ", offset + nb_bytes);
+            print!(" {:04X}: ", offset + nb_bytes);
         }
         print!("{:02X} ", byte);
         nb_bytes += 1;
@@ -58,6 +58,27 @@ fn print_next_cpu_instructions(instructions: Vec<String>) {
         }
         println!("{}", instructions[i]);
     }
+}
+
+fn print_stack_state(ram_slice: Result<&[u8], &str>, offset: u16) {
+    match ram_slice {
+        Ok(ram_slice) => {
+            for i in (0..ram_slice.len()).step_by(2).rev() {
+                if i + 1 < ram_slice.len() {
+                    if i == 0 {
+                        print!(">");
+                    } else {
+                        print!(" ");
+                    }
+                    println!("{:04X}: {:04X}", offset + i as u16, (u16::from(ram_slice[i + 1]) << 8) + u16::from(ram_slice[i]));
+                }
+            }
+        },
+        Err(msg) => {
+            println!("{}", msg)
+        }
+    }
+    
 }
 
 fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
@@ -134,6 +155,37 @@ fn draw_next_cpu_instructions(instructions: Vec<String>, c: Context, g: &mut G2d
     }
 }
 
+fn draw_stack_state(ram_slice: Result<&[u8], &str>, offset: u16, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    let mut y = WINDOW_PADDING + SCREEN_HEIGHT * SCREEN_SCALE + WINDOW_PADDING + WINDOW_FONTSIZE;
+    match ram_slice {
+        Ok(ram_slice) => {
+            for i in (0..ram_slice.len()).step_by(2).rev() {
+                if i + 1 < ram_slice.len() {
+                    let word = format!("{:04X}: {:04X}", offset + i as u16, (u16::from(ram_slice[i + 1]) << 8) + u16::from(ram_slice[i]));
+                    text::Text::new_color(if i == 0 { YELLOW } else { WHITE }, WINDOW_FONTSIZE as u32).draw(
+                        &word,
+                        glyphs,
+                        &c.draw_state,
+                        c.transform.trans(WINDOW_PADDING + SCREEN_WIDTH * SCREEN_SCALE + WINDOW_PADDING + 240.0, y),
+                        g
+                    ).unwrap();
+                    y += WINDOW_FONTSIZE;
+                }
+            }
+        },
+        Err(msg) => {
+            text::Text::new_color(WHITE, WINDOW_FONTSIZE as u32).draw(
+                msg,
+                glyphs,
+                &c.draw_state,
+                c.transform.trans(WINDOW_PADDING + SCREEN_WIDTH * SCREEN_SCALE + WINDOW_PADDING + 240.0, y),
+                g
+            ).unwrap();
+        }
+    }
+    
+}
+
 fn main() -> io::Result<()> {
     println!("Zebu");
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
@@ -159,9 +211,10 @@ fn main() -> io::Result<()> {
         if paused {
             if let Some(Button::Keyboard(key)) = e.press_args() {
                 if key == Key::S {
-                    println!("   T: {}", t_cycles);
+                    println!("    T: {}", t_cycles);
                     print_cpu_state(machine.get_cpu_state());
                     print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                    print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                     print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
                 } else if key == Key::F10 {
                     loop {
@@ -171,9 +224,10 @@ fn main() -> io::Result<()> {
                             break;
                         }
                     }
-                    println!("   T: {}", t_cycles);
+                    println!("    T: {}", t_cycles);
                     print_cpu_state(machine.get_cpu_state());
                     print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                    print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                     print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
                 } else if key == Key::F5 {
                     paused = false;
@@ -209,6 +263,7 @@ fn main() -> io::Result<()> {
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
             draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
             draw_next_cpu_instructions(machine.get_next_cpu_instructions(10), c, g, &mut glyphs);
+            draw_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp, c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });

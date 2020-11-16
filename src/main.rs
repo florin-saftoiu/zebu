@@ -27,7 +27,7 @@ fn print_cpu_state(state: Z80CPUState) {
     println!("   BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
     println!("   DE: {:02X}{:02X} DE': {:02X}{:02X}", state.d, state.e, state.d_alt, state.e_alt);
     println!("   HL: {:02X}{:02X} HL': {:02X}{:02X}", state.h, state.l, state.h_alt, state.l_alt);
-    println!("    I: {:02X}     R: {:02X}", state.i, state.r);
+    println!("    I:   {:02X}   R:   {:02X}", state.i, state.r);
     println!("   IX: {:04X}", state.ix);
     println!("   IY: {:04X}", state.iy);
     println!("   SP: {:04X}", state.sp);
@@ -87,7 +87,7 @@ fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyp
          BC: {:02X}{:02X} BC': {:02X}{:02X}\n\
          DE: {:02X}{:02X} DE': {:02X}{:02X}\n\
          HL: {:02X}{:02X} HL': {:02X}{:02X}\n\
-         \x20I: {:02X}     R: {:02X}\n\
+         \x20I:   {:02X}   R:   {:02X}\n\
          IX: {:04X}\n\
          IY: {:04X}\n\
          SP: {:04X}\n\

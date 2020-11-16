@@ -11,6 +11,16 @@ mod machine;
 use cpu::{Z80CPU, Z80CPUState};
 use machine::Z80Machine;
 
+const WINDOW_PADDING: f64 = 8.0;
+const WINDOW_FONTSIZE: f64 = 16.0;
+const SCREEN_WIDTH: f64 = 256.0;
+const SCREEN_HEIGHT: f64 = 192.0;
+const SCREEN_SCALE: f64 = 2.0;
+
+const BACKGROUND: [f32; 4] = [0.0, 0.478, 0.8, 1.0];
+const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
+const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+
 fn print_cpu_state(state: Z80CPUState) {
     println!("  AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
     println!("  BC: {:02X}{:02X} BC': {:02X}{:02X}", state.b, state.c, state.b_alt, state.c_alt);
@@ -59,16 +69,16 @@ fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyp
         state.sp,
         state.pc
     );
-    let mut y = 28.0;
+    let mut y = WINDOW_PADDING + WINDOW_FONTSIZE;
     for line in lines.split("\n") {
-        text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+        text::Text::new_color(WHITE, WINDOW_FONTSIZE as u32).draw(
             &line,
             glyphs,
             &c.draw_state,
-            c.transform.trans(528.0, y),
+            c.transform.trans(WINDOW_PADDING + SCREEN_WIDTH * SCREEN_SCALE + WINDOW_PADDING, y),
             g
         ).unwrap();
-        y += 20.0;
+        y += WINDOW_FONTSIZE;
     }
 }
 
@@ -85,16 +95,16 @@ fn draw_ram_slice_state(ram_slice: &[u8], offset: u16, c: Context, g: &mut G2d, 
         write!(ram_string, "{:02X} ", byte).unwrap();
         nb_bytes += 1;
     }
-    let mut y = 420.0;
+    let mut y = WINDOW_PADDING + SCREEN_HEIGHT * SCREEN_SCALE + WINDOW_PADDING + WINDOW_FONTSIZE;
     for line in ram_string.split("\n") {
-        text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20).draw(
+        text::Text::new_color(WHITE, WINDOW_FONTSIZE as u32).draw(
             &line,
             glyphs,
             &c.draw_state,
-            c.transform.trans(8.0, y),
+            c.transform.trans(WINDOW_PADDING, y),
             g
         ).unwrap();
-        y += 20.0;
+        y += WINDOW_FONTSIZE;
     }
 }
 
@@ -138,9 +148,9 @@ fn main() -> io::Result<()> {
             }
         }
         window.draw_2d(&e, |c, g, device| {
-            clear([0.0, 0.478, 0.8, 1.0], g);
-            rectangle([0.0, 0.0, 0.0, 1.0],
-                      [8.0, 8.0, 512.0, 384.0],
+            clear(BACKGROUND, g);
+            rectangle(BLACK,
+                      [WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE],
                       c.transform, g);
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
             draw_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000, c, g, &mut glyphs);

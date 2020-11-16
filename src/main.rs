@@ -1,5 +1,8 @@
+use std::io;
+use std::io::prelude::*;
 use std::num::Wrapping;
 use std::fmt::Write;
+use std::fs::File;
 
 use piston_window::*;
 
@@ -95,15 +98,14 @@ fn draw_ram_slice_state(ram_slice: &[u8], offset: u16, c: Context, g: &mut G2d, 
     }
 }
 
-fn main() {
+fn main() -> io::Result<()> {
     println!("Zebu");
+    let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
 
     let mut cpu = Z80CPU::new();
-    let rom = [
-        0x3e, 0x2a, // LD A, 42
-        0x21, 0x01, 0x40, // LD HL, $4001
-        0x77  // LD (HL), A
-    ];
+    let mut rom_file = File::open(assets.join("hello.bin"))?;
+    let mut rom = [0; 16 * 1024];
+    rom_file.read(&mut rom)?;
     let mut ram = [0; 48 * 1024];
     let mut machine = Z80Machine::new(&mut cpu, &rom, &mut ram);
     
@@ -113,7 +115,6 @@ fn main() {
             .automatic_close(true)
             .build()
             .unwrap();
-    let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
 
     let mut t_cycles = Wrapping(0usize);
@@ -148,4 +149,6 @@ fn main() {
         });
         window.set_title(format!("Zebu - T: {}", t_cycles));
     }
+
+    Ok(())
 }

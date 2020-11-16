@@ -1,7 +1,7 @@
 use crate::cpu::{Z80CPU, Z80CPUState};
 
 pub struct ZebuZ80Bus<'a> {
-    rom: &'a [u8; 6],
+    rom: &'a [u8; 16 * 1024],
     ram: &'a mut [u8; 48 * 1024]
 }
 
@@ -29,7 +29,7 @@ pub struct Z80Machine<'a> {
 }
 
 impl<'a> Z80Machine<'a> {
-    pub fn new(cpu: &'a mut Z80CPU, rom: &'a [u8; 6], ram: &'a mut [u8; 48 * 1024]) -> Z80Machine<'a> {
+    pub fn new(cpu: &'a mut Z80CPU, rom: &'a [u8; 16 * 1024], ram: &'a mut [u8; 48 * 1024]) -> Z80Machine<'a> {
         Z80Machine {
             cpu: cpu,
             bus: ZebuZ80Bus {

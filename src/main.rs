@@ -101,7 +101,7 @@ fn main() {
     let mut cpu = Z80CPU::new();
     let rom = [
         0x3e, 0x2a, // LD A, 42
-        0x21, 0x01, 0x00, // LD HL, 1
+        0x21, 0x01, 0x40, // LD HL, $4001
         0x77  // LD (HL), A
     ];
     let mut ram = [0; 48 * 1024];

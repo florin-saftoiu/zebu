@@ -7,11 +7,19 @@ pub struct ZebuZ80Bus<'a> {
 
 impl<'a> ZebuZ80Bus<'a> {
     pub fn read(&self, addr: u16) -> u8 {
-        self.rom[usize::from(addr % 6)]
+        if addr < 0x4000 {
+            self.rom[usize::from(addr % 6)]
+        } else {
+            self.ram[usize::from(addr)]
+        }
     }
 
     pub fn write(&mut self, addr: u16, data: u8) {
-        self.ram[usize::from(addr)] = data;
+        if addr < 0x4000 {
+            // do nothing, can't write to rom
+        } else {
+            self.ram[usize::from(addr - 0x4000)] = data;
+        }
     }
 }
 

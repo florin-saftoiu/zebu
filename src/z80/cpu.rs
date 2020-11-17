@@ -175,6 +175,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x2a);
+        assert_eq!(1 + cpu.t_cycles, 7);
     }
 
     #[test]
@@ -191,6 +192,7 @@ mod tests {
 
         assert_eq!(cpu.h, 0x40);
         assert_eq!(cpu.l, 0x01);
+        assert_eq!(1 + cpu.t_cycles, 10);
     }
 
     #[test]
@@ -206,5 +208,7 @@ mod tests {
         cpu.l = 0x01;
         cpu.a = 0x2a;
         cpu.clock(&mut mock_bus);
+
+        assert_eq!(1 + cpu.t_cycles, 7);
     }
 }

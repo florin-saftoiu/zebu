@@ -133,7 +133,7 @@ mod tests {
     use super::super::machine::MockReadWrite;
 
     #[test]
-    fn test_ld_a_42() {
+    fn test_ld_a_0x2a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
@@ -144,5 +144,36 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x2a);
+    }
+
+    #[test]
+    fn test_ld_hl_0x4001() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x21);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x01);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0x40);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.h, 0x40);
+        assert_eq!(cpu.l, 0x01);
+    }
+
+    #[test]
+    fn test_ld_reg_hl_a() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x77);
+        mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.h = 0x40;
+        cpu.l = 0x01;
+        cpu.a = 0x2a;
+        cpu.clock(&mut mock_bus);
     }
 }

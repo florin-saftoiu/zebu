@@ -5,10 +5,8 @@ use std::fs::File;
 
 use piston_window::*;
 
-mod cpu;
-mod machine;
-use cpu::{Z80CPU, Z80CPUState};
-use machine::Z80Machine;
+mod z80;
+use z80::{cpu::*, machine::*};
 
 const WINDOW_PADDING: f64 = 8.0;
 const WINDOW_FONTSIZE: f64 = 16.0;

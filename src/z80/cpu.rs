@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use crate::machine::Z80Bus;
+use super::bus::Z80Bus;
 
 pub struct Z80CPU {
     a: u8, f: u8, a_alt: u8, f_alt: u8,

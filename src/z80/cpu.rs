@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use super::bus::ReadWrite;
+use super::machine::ReadWrite;
 
 pub struct Z80CPU {
     a: u8, f: u8, a_alt: u8, f_alt: u8,
@@ -130,7 +130,7 @@ mod tests {
     use mockall::predicate::*;
 
     use super::*;
-    use super::super::bus::MockReadWrite;
+    use super::super::machine::MockReadWrite;
 
     #[test]
     fn test_ld_a_42() {

@@ -1,6 +1,5 @@
 use std::io;
 use std::io::prelude::*;
-use std::num::Wrapping;
 use std::fmt::Write;
 use std::fs::File;
 
@@ -196,6 +195,7 @@ fn main() -> io::Result<()> {
     rom_file.read(&mut rom)?;
     let mut ram = [0; 48 * 1024];
     let mut machine = Z80Machine::new(&mut cpu, &rom, &mut ram);
+    machine.reset();
     
     let mut window: PistonWindow = WindowSettings::new("Zebu", [1024, 768])
             .resizable(false)
@@ -205,13 +205,12 @@ fn main() -> io::Result<()> {
             .unwrap();
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
 
-    let mut t_cycles = Wrapping(0usize);
     let mut paused = true;
     while let Some(e) = window.next() {
         if paused {
             if let Some(Button::Keyboard(key)) = e.press_args() {
                 if key == Key::S {
-                    println!("    T: {}", t_cycles);
+                    println!("    T: {}", machine.get_t_cycles());
                     print_cpu_state(machine.get_cpu_state());
                     print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
                     print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
@@ -219,12 +218,11 @@ fn main() -> io::Result<()> {
                 } else if key == Key::F10 {
                     loop {
                         machine.clock();
-                        t_cycles += Wrapping(1);
                         if machine.cpu_instruction_complete() {
                             break;
                         }
                     }
-                    println!("    T: {}", t_cycles);
+                    println!("    T: {}", machine.get_t_cycles());
                     print_cpu_state(machine.get_cpu_state());
                     print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
                     print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
@@ -233,7 +231,7 @@ fn main() -> io::Result<()> {
                     paused = false;
                 }
             }
-         } else {
+        } else {
             if let Some(Button::Keyboard(key)) = e.press_args() {
                 if key == Key::F6 {
                     paused = true;
@@ -241,7 +239,6 @@ fn main() -> io::Result<()> {
                     if !machine.cpu_instruction_complete() {
                         loop {
                             machine.clock();
-                            t_cycles += Wrapping(1);
                             if machine.cpu_instruction_complete() {
                                 break;
                             }
@@ -252,9 +249,15 @@ fn main() -> io::Result<()> {
             // user may have just paused and finished the current instruction
             if !paused {
                 machine.clock();
-                t_cycles += Wrapping(1);
             }
         }
+
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            if key == Key::R {
+                machine.reset();
+            }
+        }
+
         window.draw_2d(&e, |c, g, device| {
             clear(BACKGROUND, g);
             rectangle(BLACK,
@@ -267,7 +270,7 @@ fn main() -> io::Result<()> {
 
             glyphs.factory.encoder.flush(device);
         });
-        window.set_title(format!("Zebu - T: {}", t_cycles));
+        window.set_title(format!("Zebu - T: {}", machine.get_t_cycles()));
     }
 
     Ok(())

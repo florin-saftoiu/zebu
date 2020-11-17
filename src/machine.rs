@@ -1,4 +1,5 @@
 use std::cmp;
+use std::num::Wrapping;
 
 use crate::cpu::{Z80CPU, Z80CPUState};
 
@@ -27,7 +28,8 @@ impl<'a> Z80Bus<'a> {
 
 pub struct Z80Machine<'a> {
     cpu: &'a mut Z80CPU,
-    bus: Z80Bus<'a>
+    bus: Z80Bus<'a>,
+    t_cycles: Wrapping<usize>
 }
 
 impl<'a> Z80Machine<'a> {
@@ -37,16 +39,33 @@ impl<'a> Z80Machine<'a> {
             bus: Z80Bus {
                 rom: rom,
                 ram: ram
-            }
+            },
+            t_cycles: Wrapping(0usize)
         }
     }
 
     pub fn clock(&mut self) {
         self.cpu.clock(&mut self.bus);
+        self.t_cycles += Wrapping(1);
+    }
+
+    pub fn reset(&mut self) {
+        self.cpu.reset();
+        self.t_cycles = Wrapping(0);
+        loop {
+            self.clock();
+            if self.cpu.instruction_complete() {
+                break;
+            }
+        }
     }
 
     pub fn cpu_instruction_complete(&self) -> bool {
         self.cpu.instruction_complete()
+    }
+
+    pub fn get_t_cycles(&self) -> usize {
+        self.t_cycles.0
     }
 
     pub fn get_next_cpu_instructions(&self, nb: usize) -> Vec<String> {

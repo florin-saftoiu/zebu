@@ -74,6 +74,13 @@ impl Z80CPU {
         self.t_cycles -= 1;
     }
 
+    pub fn reset(&mut self) {
+        self.pc = Wrapping(0);
+        self.i = 0;
+        self.r = 0;
+        self.t_cycles = 3;
+    }
+
     pub fn instruction_complete(&self) -> bool {
         self.t_cycles == 0
     }

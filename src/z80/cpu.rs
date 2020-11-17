@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use super::bus::Z80Bus;
+use super::bus::ReadWrite;
 
 pub struct Z80CPU {
     a: u8, f: u8, a_alt: u8, f_alt: u8,
@@ -45,7 +45,7 @@ impl Z80CPU {
         }
     }
 
-    pub fn clock(&mut self, bus: &mut Z80Bus) {
+    pub fn clock(&mut self, bus: &mut dyn ReadWrite) {
         if self.t_cycles == 0 {
             self.opcode = bus.read(self.pc.0);
             self.pc += Wrapping(1);
@@ -85,7 +85,7 @@ impl Z80CPU {
         self.t_cycles == 0
     }
 
-    pub fn get_next_instructions(&self, bus: &Z80Bus, nb: usize) -> Vec<String> {
+    pub fn get_next_instructions(&self, bus: &dyn ReadWrite, nb: usize) -> Vec<String> {
         let mut instructions = vec![];
         let mut pc = self.pc.0;
         while instructions.len() < nb {
@@ -122,5 +122,27 @@ impl Z80CPU {
             sp: self.sp,
             pc: self.pc.0
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use mockall::predicate::*;
+
+    use super::*;
+    use super::super::bus::MockReadWrite;
+
+    #[test]
+    fn test_ld_a_42() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.a, 0x2a);
     }
 }

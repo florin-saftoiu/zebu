@@ -164,18 +164,16 @@ mod tests {
     use super::super::machine::MockReadWrite;
 
     #[test]
-    fn test_ld_a_0x2a() {
+    fn test_nop() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
-        mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
-        mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
-
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x00);
+        
         cpu.reset();
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
-        assert_eq!(cpu.a, 0x2a);
-        assert_eq!(1 + cpu.t_cycles, 7);
+        assert_eq!(1 + cpu.t_cycles, 4);
     }
 
     #[test]
@@ -193,6 +191,21 @@ mod tests {
         assert_eq!(cpu.h, 0x40);
         assert_eq!(cpu.l, 0x01);
         assert_eq!(1 + cpu.t_cycles, 10);
+    }
+
+    #[test]
+    fn test_ld_a_0x2a() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.a, 0x2a);
+        assert_eq!(1 + cpu.t_cycles, 7);
     }
 
     #[test]

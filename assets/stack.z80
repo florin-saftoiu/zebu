@@ -1,0 +1,4 @@
+    LD HL, $40FF
+    LD SP, HL
+    LD DE, $1234
+    PUSH DE

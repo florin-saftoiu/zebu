@@ -1,0 +1,3 @@
+    LD A, $2A
+    LD HL, $4001
+    LD (HL), A

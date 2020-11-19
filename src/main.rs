@@ -263,8 +263,8 @@ fn main() -> io::Result<()> {
                       c.transform, g);
             draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
             draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
-            draw_next_cpu_instructions(machine.get_next_cpu_instructions(10), c, g, &mut glyphs);
-            draw_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp, c, g, &mut glyphs);
+            draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs);
+            draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
 
             glyphs.factory.encoder.flush(device);
         });

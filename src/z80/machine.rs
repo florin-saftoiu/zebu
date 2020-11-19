@@ -94,6 +94,6 @@ impl<'a> Z80Machine<'a> {
         if sp < 0x4000 {
             return Err("INVALID SP");
         }
-        Ok(&self.bus.ram[sp - 0x4000 + start..cmp::min(sp - 0x4000 + start + len, 0xFFFF - 0x4000 + 1)])
+        Ok(&self.bus.ram[sp - 0x4000 + start * 2..cmp::min(sp - 0x4000 + start * 2 + len * 2, 0xFFFF - 0x4000 + 1)])
     }
 }

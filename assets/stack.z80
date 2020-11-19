@@ -2,3 +2,7 @@
     LD SP, HL
     LD DE, $1234
     PUSH DE
+    LD DE, $4321
+    PUSH DE
+    LD DE, $BAAD
+    PUSH DE

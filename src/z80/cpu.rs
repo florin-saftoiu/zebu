@@ -201,6 +201,23 @@ mod tests {
     }
 
     #[test]
+    fn test_ld_de_0xbaad() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x11);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.d, 0xba);
+        assert_eq!(cpu.e, 0xad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+    }
+
+    #[test]
     fn test_ld_hl_0x4001() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -247,5 +264,39 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+    }
+
+    #[test]
+    fn test_push_de() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xd5);
+        mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
+        mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.d = 0xba;
+        cpu.e = 0xad;
+        cpu.sp = 0x5000;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(1 + cpu.t_cycles, 11);
+    }
+
+    #[test]
+    fn test_ld_sp_hl() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xf9);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.h = 0x40;
+        cpu.l = 0xff;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.sp, 0x40ff);
+        assert_eq!(1 + cpu.t_cycles, 6);
     }
 }

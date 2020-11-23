@@ -4,10 +4,10 @@ use super::machine::ReadWrite;
 
 const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
 /*         0                                             1                                              2                                             3                                             4                                             5                                              6                                       7                                             8                                          9                                            a                                          b                                          c                                          d                                          e                                       f                                              */
-/* 00 */ ("NOP"       , Z80CPU::nop           , 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD B", Z80CPU::ld_b_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD C", Z80CPU::ld_c_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 00 */
+/* 00 */ ("NOP"       , Z80CPU::nop           , 0, 4), ("LD BC"     , Z80CPU::ld_bc_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD B", Z80CPU::ld_b_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD C", Z80CPU::ld_c_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 00 */
 /* 10 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("LD DE"     , Z80CPU::ld_de_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD D", Z80CPU::ld_d_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD E", Z80CPU::ld_e_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 10 */
 /* 20 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("LD HL"     , Z80CPU::ld_hl_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD H", Z80CPU::ld_h_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD L", Z80CPU::ld_l_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 20 */
-/* 30 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD A", Z80CPU::ld_a_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 30 */
+/* 30 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("LD SP"     , Z80CPU::ld_sp_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LD A", Z80CPU::ld_a_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 30 */
 /* 40 */ ("LD B, B"   , Z80CPU::ld_b_b        , 0, 4), ("LD B, C"   , Z80CPU::ld_b_c        , 0,  4), ("LD B, D"   , Z80CPU::ld_b_d        , 0, 4), ("LD B, E"   , Z80CPU::ld_b_e        , 0, 4), ("LD B, H"   , Z80CPU::ld_b_h        , 0, 4), ("LD B, L"   , Z80CPU::ld_b_l        , 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD B, A"   , Z80CPU::ld_b_a        , 0, 4), ("LD C, B", Z80CPU::ld_c_b        , 0, 4), ("LD C, C"  , Z80CPU::ld_c_c        , 0, 4), ("LD C, D", Z80CPU::ld_c_d        , 0, 4), ("LD C, E", Z80CPU::ld_c_e        , 0, 4), ("LD C, H", Z80CPU::ld_c_h        , 0, 4), ("LD C, L", Z80CPU::ld_c_l        , 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD C, A", Z80CPU::ld_c_a        , 0, 4), /* 40 */
 /* 50 */ ("LD D, B"   , Z80CPU::ld_d_b        , 0, 4), ("LD D, C"   , Z80CPU::ld_d_c        , 0,  4), ("LD D, D"   , Z80CPU::ld_d_d        , 0, 4), ("LD D, E"   , Z80CPU::ld_d_e        , 0, 4), ("LD D, H"   , Z80CPU::ld_d_h        , 0, 4), ("LD D, L"   , Z80CPU::ld_d_l        , 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD D, A"   , Z80CPU::ld_d_a        , 0, 4), ("LD E, B", Z80CPU::ld_e_b        , 0, 4), ("LD E, C"  , Z80CPU::ld_e_c        , 0, 4), ("LD E, D", Z80CPU::ld_e_d        , 0, 4), ("LD E, E", Z80CPU::ld_e_e        , 0, 4), ("LD E, H", Z80CPU::ld_e_h        , 0, 4), ("LD E, L", Z80CPU::ld_e_l        , 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD E, A", Z80CPU::ld_e_a        , 0, 4), /* 50 */
 /* 60 */ ("LD H, B"   , Z80CPU::ld_h_b        , 0, 4), ("LD H, C"   , Z80CPU::ld_h_c        , 0,  4), ("LD H, D"   , Z80CPU::ld_h_d        , 0, 4), ("LD H, E"   , Z80CPU::ld_h_e        , 0, 4), ("LD H, H"   , Z80CPU::ld_h_h        , 0, 4), ("LD H, L"   , Z80CPU::ld_h_l        , 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD H, A"   , Z80CPU::ld_h_a        , 0, 4), ("LD L, B", Z80CPU::ld_l_b        , 0, 4), ("LD L, C"  , Z80CPU::ld_l_c        , 0, 4), ("LD L, D", Z80CPU::ld_l_d        , 0, 4), ("LD L, E", Z80CPU::ld_l_e        , 0, 4), ("LD L, H", Z80CPU::ld_l_h        , 0, 4), ("LD L, L", Z80CPU::ld_l_l        , 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("LD L, A", Z80CPU::ld_l_a        , 0, 4), /* 60 */
@@ -129,6 +129,16 @@ impl Z80CPU {
         0
     }
 
+    fn ld_bc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc.0);
+        self.pc += Wrapping(1);
+        self.c = n_low;
+        let n_high = bus.read(self.pc.0);
+        self.pc += Wrapping(1);
+        self.b = n_high;
+        0
+    }
+
     fn ld_b_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc.0);
         self.pc += Wrapping(1);
@@ -188,6 +198,15 @@ impl Z80CPU {
         let n = bus.read(self.pc.0);
         self.pc += Wrapping(1);
         self.l = n;
+        0
+    }
+
+    fn ld_sp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc.0);
+        self.pc += Wrapping(1);
+        let n_high = bus.read(self.pc.0);
+        self.pc += Wrapping(1);
+        self.sp = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
 
@@ -525,6 +544,23 @@ mod tests {
     }
 
     #[test]
+    fn test_ld_bc_0xbaad() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x01);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.b, 0xba);
+        assert_eq!(cpu.c, 0xad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+    }
+
+    #[test]
     fn test_ld_b_0xd9() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -646,6 +682,22 @@ mod tests {
 
         assert_eq!(cpu.l, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+    }
+
+    #[test]
+    fn test_ld_sp_0xbaad() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x31);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+
+        cpu.reset();
+        cpu.t_cycles = 0;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.sp, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
     }
 
     #[test]

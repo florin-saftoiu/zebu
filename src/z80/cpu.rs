@@ -52,8 +52,7 @@ pub struct Z80CPU {
     iy: u16,
     sp: u16,
     pc: Wrapping<u16>,
-    t_cycles: u8,
-    opcode: u8
+    t_cycles: u8
 }
 
 pub struct Z80CPUState {
@@ -80,17 +79,16 @@ impl Z80CPU {
             iy: 0,
             sp: 0,
             pc: Wrapping(0),
-            t_cycles: 0,
-            opcode: 0
+            t_cycles: 0
         }
     }
 
     pub fn clock(&mut self, bus: &mut dyn ReadWrite) {
         if self.t_cycles == 0 {
-            self.opcode = bus.read(self.pc.0);
+            let opcode = bus.read(self.pc.0);
             self.pc += Wrapping(1);
-            self.t_cycles = OPCODES[usize::from(self.opcode)].3;
-            self.t_cycles += OPCODES[usize::from(self.opcode)].1(self, bus);
+            self.t_cycles = OPCODES[usize::from(opcode)].3;
+            self.t_cycles += OPCODES[usize::from(opcode)].1(self, bus);
         }
 
         self.t_cycles -= 1;

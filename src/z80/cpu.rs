@@ -640,10 +640,12 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x00);
         
         cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: NOP");
     }
 
     #[test]
@@ -655,12 +657,14 @@ mod tests {
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
 
         cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0xba);
         assert_eq!(cpu.c, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: LD BC, $BAAD");
     }
 
     #[test]
@@ -671,11 +675,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+        assert_eq!(disasm, "0000: LD B, $D9");
     }
 
     #[test]
@@ -686,11 +692,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD C, $D9");
     }
 
     #[test]
@@ -702,12 +710,14 @@ mod tests {
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0xba);
         assert_eq!(cpu.e, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: LD DE, $BAAD");
     }
 
     #[test]
@@ -718,11 +728,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD D, $D9");
     }
 
     #[test]
@@ -733,11 +745,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD E, $D9");
     }
 
     #[test]
@@ -749,12 +763,14 @@ mod tests {
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x40);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x40);
         assert_eq!(cpu.l, 0x01);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: LD HL, $4001");
     }
 
     #[test]
@@ -765,11 +781,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD H, $D9");
     }
 
     #[test]
@@ -780,11 +798,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD L, $D9");
     }
 
     #[test]
@@ -796,11 +816,13 @@ mod tests {
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.sp, 0xbaad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: LD SP, $BAAD");
     }
 
     #[test]
@@ -811,11 +833,13 @@ mod tests {
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD A, $2A");
     }
 
     #[test]
@@ -825,12 +849,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x40);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, B");
     }
 
     #[test]
@@ -840,12 +866,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x41);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, C");
     }
 
     #[test]
@@ -855,12 +883,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x42);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, D");
     }
 
     #[test]
@@ -870,12 +900,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x43);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, E");
     }
 
     #[test]
@@ -885,12 +917,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x44);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, H");
     }
 
     #[test]
@@ -900,12 +934,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x45);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, L");
     }
 
     #[test]
@@ -915,12 +951,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x47);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD B, A");
     }
 
     #[test]
@@ -930,12 +968,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x48);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, B");
     }
 
     #[test]
@@ -945,12 +985,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x49);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, C");
     }
 
     #[test]
@@ -960,12 +1002,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4a);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, D");
     }
 
     #[test]
@@ -975,12 +1019,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4b);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, E");
     }
 
     #[test]
@@ -990,12 +1036,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4c);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, H");
     }
 
     #[test]
@@ -1005,12 +1053,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4d);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, L");
     }
 
     #[test]
@@ -1020,12 +1070,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4f);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD C, A");
     }
 
     #[test]
@@ -1035,12 +1087,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x50);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, B");
     }
 
     #[test]
@@ -1050,12 +1104,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x51);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, C");
     }
 
     #[test]
@@ -1065,12 +1121,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x52);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, D");
     }
 
     #[test]
@@ -1080,12 +1138,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x53);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, E");
     }
 
     #[test]
@@ -1095,12 +1155,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x54);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, H");
     }
 
     #[test]
@@ -1110,12 +1172,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x55);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, L");
     }
 
     #[test]
@@ -1125,12 +1189,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x57);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD D, A");
     }
 
     #[test]
@@ -1140,12 +1206,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x58);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, B");
     }
 
     #[test]
@@ -1155,12 +1223,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x59);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, C");
     }
 
     #[test]
@@ -1170,12 +1240,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5a);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, D");
     }
 
     #[test]
@@ -1185,12 +1257,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5b);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, E");
     }
 
     #[test]
@@ -1200,12 +1274,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5c);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, H");
     }
 
     #[test]
@@ -1215,12 +1291,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5d);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, L");
     }
 
     #[test]
@@ -1230,12 +1308,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5f);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD E, A");
     }
 
     #[test]
@@ -1245,12 +1325,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x60);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, B");
     }
 
     #[test]
@@ -1260,12 +1342,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x61);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, C");
     }
 
     #[test]
@@ -1275,12 +1359,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x62);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, D");
     }
 
     #[test]
@@ -1290,12 +1376,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x63);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, E");
     }
 
     #[test]
@@ -1305,12 +1393,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x64);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, H");
     }
 
     #[test]
@@ -1320,12 +1410,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x65);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, L");
     }
 
     #[test]
@@ -1335,12 +1427,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x67);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD H, A");
     }
 
     #[test]
@@ -1350,12 +1444,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x68);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, B");
     }
 
     #[test]
@@ -1365,12 +1461,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x69);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, C");
     }
 
     #[test]
@@ -1380,12 +1478,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6a);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, D");
     }
 
     #[test]
@@ -1395,12 +1495,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6b);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, E");
     }
 
     #[test]
@@ -1410,12 +1512,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6c);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, H");
     }
 
     #[test]
@@ -1425,12 +1529,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6d);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, L");
     }
 
     #[test]
@@ -1440,12 +1546,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6f);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD L, A");
     }
 
     #[test]
@@ -1456,6 +1564,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
@@ -1463,6 +1572,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), B");
     }
 
     #[test]
@@ -1473,6 +1583,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
@@ -1480,6 +1591,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), C");
     }
 
     #[test]
@@ -1490,6 +1602,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
@@ -1497,6 +1610,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), D");
     }
 
     #[test]
@@ -1507,6 +1621,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
@@ -1514,6 +1629,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), E");
     }
 
     #[test]
@@ -1524,12 +1640,14 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x40)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), H");
     }
 
     #[test]
@@ -1540,12 +1658,14 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x01)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), L");
     }
 
     #[test]
@@ -1556,6 +1676,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
@@ -1563,6 +1684,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 7);
+		assert_eq!(disasm, "0000: LD (HL), A");
     }
 
     #[test]
@@ -1572,12 +1694,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x78);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, B");
     }
 
     #[test]
@@ -1587,12 +1711,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x79);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, C");
     }
 
     #[test]
@@ -1602,12 +1728,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7a);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, D");
     }
 
     #[test]
@@ -1617,12 +1745,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7b);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, E");
     }
 
     #[test]
@@ -1632,12 +1762,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7c);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, H");
     }
 
     #[test]
@@ -1647,12 +1779,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7d);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, L");
     }
 
     #[test]
@@ -1662,12 +1796,14 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7f);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
 
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
+		assert_eq!(disasm, "0000: LD A, A");
     }
 
     #[test]
@@ -1679,6 +1815,7 @@ mod tests {
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
@@ -1686,6 +1823,7 @@ mod tests {
         assert_eq!(cpu.b, 0xba);
         assert_eq!(cpu.c, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: POP BC");
     }
 
     #[test]
@@ -1697,6 +1835,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0xba;
         cpu.c = 0xad;
@@ -1704,6 +1843,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 11);
+		assert_eq!(disasm, "0000: PUSH BC");
     }
 
     #[test]
@@ -1715,6 +1855,7 @@ mod tests {
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
@@ -1722,6 +1863,7 @@ mod tests {
         assert_eq!(cpu.d, 0xba);
         assert_eq!(cpu.e, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: POP DE");
     }
 
 
@@ -1734,6 +1876,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0xba;
         cpu.e = 0xad;
@@ -1741,16 +1884,17 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 11);
+		assert_eq!(disasm, "0000: PUSH DE");
     }
 
     #[test]
     fn test_ld_ix_0xbaad() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
-        mock_bus.expect_read().with(eq(0)).times(2).returning(|_| 0xdd);
-        mock_bus.expect_read().with(eq(1)).times(2).returning(|_| 0x21);
-        mock_bus.expect_read().with(eq(2)).times(2).returning(|_| 0xad);
-        mock_bus.expect_read().with(eq(3)).times(2).returning(|_| 0xba);
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xdd);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x21);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(3)).returning(|_| 0xba);
         
         cpu.reset();
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
@@ -1771,6 +1915,7 @@ mod tests {
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
@@ -1778,6 +1923,7 @@ mod tests {
         assert_eq!(cpu.h, 0xba);
         assert_eq!(cpu.l, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: POP HL");
     }
 
     #[test]
@@ -1789,6 +1935,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xba;
         cpu.l = 0xad;
@@ -1796,6 +1943,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 11);
+		assert_eq!(disasm, "0000: PUSH HL");
     }
 
     #[test]
@@ -1807,6 +1955,7 @@ mod tests {
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
@@ -1814,6 +1963,7 @@ mod tests {
         assert_eq!(cpu.a, 0xba);
         assert_eq!(cpu.f, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
+		assert_eq!(disasm, "0000: POP AF");
     }
 
 
@@ -1826,6 +1976,7 @@ mod tests {
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xba;
         cpu.f = 0xad;
@@ -1833,6 +1984,7 @@ mod tests {
         cpu.clock(&mut mock_bus);
 
         assert_eq!(1 + cpu.t_cycles, 11);
+		assert_eq!(disasm, "0000: PUSH AF");
     }
 
     #[test]
@@ -1842,6 +1994,7 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf9);
 
         cpu.reset();
+		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0xff;
@@ -1849,5 +2002,6 @@ mod tests {
 
         assert_eq!(cpu.sp, 0x40ff);
         assert_eq!(1 + cpu.t_cycles, 6);
+		assert_eq!(disasm, "0000: LD SP, HL");
     }
 }

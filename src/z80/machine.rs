@@ -1,5 +1,4 @@
 use std::cmp;
-use std::num::Wrapping;
 
 #[cfg(test)]
 use mockall::automock;
@@ -38,7 +37,7 @@ impl<'a> ReadWrite for Z80Bus<'a> {
 pub struct Z80Machine<'a> {
     cpu: &'a mut Z80CPU,
     bus: Z80Bus<'a>,
-    t_cycles: Wrapping<usize>
+    t_cycles: usize
 }
 
 impl<'a> Z80Machine<'a> {
@@ -49,18 +48,18 @@ impl<'a> Z80Machine<'a> {
                 rom: rom,
                 ram: ram
             },
-            t_cycles: Wrapping(0usize)
+            t_cycles: 0
         }
     }
 
     pub fn clock(&mut self) {
         self.cpu.clock(&mut self.bus);
-        self.t_cycles += Wrapping(1);
+        self.t_cycles = self.t_cycles.wrapping_add(1);
     }
 
     pub fn reset(&mut self) {
         self.cpu.reset();
-        self.t_cycles = Wrapping(0);
+        self.t_cycles = 0;
         loop {
             self.clock();
             if self.cpu.instruction_complete() {
@@ -74,7 +73,7 @@ impl<'a> Z80Machine<'a> {
     }
 
     pub fn get_t_cycles(&self) -> usize {
-        self.t_cycles.0
+        self.t_cycles
     }
 
     pub fn get_next_cpu_instructions(&self, nb: usize) -> Vec<String> {

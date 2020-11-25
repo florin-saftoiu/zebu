@@ -1,5 +1,3 @@
-use std::num::Wrapping;
-
 use super::machine::ReadWrite;
 
 const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
@@ -51,7 +49,7 @@ pub struct Z80CPU {
     ix: u16,
     iy: u16,
     sp: u16,
-    pc: Wrapping<u16>,
+    pc: u16,
     t_cycles: u8
 }
 
@@ -78,15 +76,15 @@ impl Z80CPU {
             ix: 0,
             iy: 0,
             sp: 0,
-            pc: Wrapping(0),
+            pc: 0,
             t_cycles: 0
         }
     }
 
     pub fn clock(&mut self, bus: &mut dyn ReadWrite) {
         if self.t_cycles == 0 {
-            let opcode = bus.read(self.pc.0);
-            self.pc += Wrapping(1);
+            let opcode = bus.read(self.pc);
+            self.pc = self.pc.wrapping_add(1);
             self.t_cycles = OPCODES[usize::from(opcode)].3;
             self.t_cycles += OPCODES[usize::from(opcode)].1(self, bus);
         }
@@ -95,7 +93,7 @@ impl Z80CPU {
     }
 
     pub fn reset(&mut self) {
-        self.pc = Wrapping(0);
+        self.pc = 0;
         self.i = 0;
         self.r = 0;
         self.t_cycles = 3;
@@ -107,42 +105,42 @@ impl Z80CPU {
 
     pub fn get_next_instructions(&self, bus: &dyn ReadWrite, nb: usize) -> Vec<String> {
         let mut instructions = vec![];
-        let mut pc = self.pc.0;
+        let mut pc = self.pc;
         while instructions.len() < nb {
             let opcode = bus.read(pc);
-            pc += 1;
+            pc = pc.wrapping_add(1);
             let nb_operands = OPCODES[usize::from(opcode)].2;
             if nb_operands == 0 {
                 if opcode == 0xdd {
                     let ix_opcode = bus.read(pc);
-                    pc += 1;
+                    pc = pc.wrapping_add(1);
                     let nb_ix_operands = IX_OPCODES[usize::from(ix_opcode)].2;
                     if nb_ix_operands == 0 {
-                        instructions.push(format!("{:04X}: {}", pc - 2, IX_OPCODES[usize::from(ix_opcode)].0));
+                        instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), IX_OPCODES[usize::from(ix_opcode)].0));
                     } else if nb_ix_operands == 1 {
                         let n = bus.read(pc);
-                        pc += 1;
-                        instructions.push(format!("{:04X}: {}, ${:X}", pc - 3, IX_OPCODES[usize::from(ix_opcode)].0, n));
+                        pc = pc.wrapping_add(1);
+                        instructions.push(format!("{:04X}: {}, ${:X}", pc.wrapping_sub(3), IX_OPCODES[usize::from(ix_opcode)].0, n));
                     } else if nb_ix_operands == 2 {
                         let n_low = bus.read(pc);
-                        pc += 1;
+                        pc = pc.wrapping_add(1);
                         let n_high = bus.read(pc);
-                        pc += 1;
-                        instructions.push(format!("{:04X}: {}, ${:X}", pc - 4, IX_OPCODES[usize::from(ix_opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
+                        pc = pc.wrapping_add(1);
+                        instructions.push(format!("{:04X}: {}, ${:X}", pc.wrapping_sub(4), IX_OPCODES[usize::from(ix_opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
                     }
                 } else {
-                    instructions.push(format!("{:04X}: {}", pc - 1, OPCODES[usize::from(opcode)].0));
+                    instructions.push(format!("{:04X}: {}", pc.wrapping_sub(1), OPCODES[usize::from(opcode)].0));
                 }
             } else if nb_operands == 1 {
                 let n = bus.read(pc);
-                pc += 1;
-                instructions.push(format!("{:04X}: {}, ${:X}", pc - 2, OPCODES[usize::from(opcode)].0, n));
+                pc = pc.wrapping_add(1);
+                instructions.push(format!("{:04X}: {}, ${:X}", pc.wrapping_sub(2), OPCODES[usize::from(opcode)].0, n));
             } else if nb_operands == 2 {
                 let n_low = bus.read(pc);
-                pc += 1;
+                pc = pc.wrapping_add(1);
                 let n_high = bus.read(pc);
-                pc += 1;
-                instructions.push(format!("{:04X}: {}, ${:X}", pc - 3, OPCODES[usize::from(opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
+                pc = pc.wrapping_add(1);
+                instructions.push(format!("{:04X}: {}, ${:X}", pc.wrapping_sub(3), OPCODES[usize::from(opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
             }
         }
         instructions
@@ -158,7 +156,7 @@ impl Z80CPU {
             ix: self.ix,
             iy: self.iy,
             sp: self.sp,
-            pc: self.pc.0
+            pc: self.pc
         }
     }
 
@@ -167,124 +165,124 @@ impl Z80CPU {
     }
 
     fn ld_bc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n_low = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.c = n_low;
-        let n_high = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.b = n_high;
         0
     }
 
     fn inc_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.b += 1;
+        self.b = self.b.wrapping_add(1);
         0
     }
 
     fn ld_b_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.b = n;
         0
     }
 
     fn inc_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.c += 1;
+        self.c = self.c.wrapping_add(1);
         0
     }
 
     fn ld_c_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.c = n;
         0
     }
 
     fn ld_de_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n_low = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.e = n_low;
-        let n_high = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.d = n_high;
         0
     }
 
     fn inc_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.d += 1;
+        self.d = self.d.wrapping_add(1);
         0
     }
 
     fn ld_d_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.d = n;
         0
     }
 
     fn inc_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.e += 1;
+        self.e = self.e.wrapping_add(1);
         0
     }
 
     fn ld_e_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.e = n;
         0
     }
 
     fn ld_hl_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n_low = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.l = n_low;
-        let n_high = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.h = n_high;
         0
     }
 
     fn inc_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.h += 1;
+        self.h = self.h.wrapping_add(1);
         0
     }
 
     fn ld_h_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.h = n;
         0
     }
 
     fn inc_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.l += 1;
+        self.l = self.l.wrapping_add(1);
         0
     }
 
     fn ld_l_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.l = n;
         0
     }
 
     fn ld_sp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n_low = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
-        let n_high = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.sp = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
 
     fn inc_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.a += 1;
+        self.a = self.a.wrapping_add(1);
         0
     }
 
     fn ld_a_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.a = n;
         0
     }
@@ -578,81 +576,81 @@ impl Z80CPU {
 
     fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.c = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         self.b = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         0
     }
 
     fn push_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.b);
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.c);
         0
     }
 
     fn pop_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.e = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         self.d = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         0
     }
 
     fn push_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.d);
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.e);
         0
     }
 
     fn ix(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let ix_opcode = bus.read(self.pc.0);
-        self.pc +=  Wrapping(1);
+        let ix_opcode = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         let mut t_cycles = IX_OPCODES[usize::from(ix_opcode)].3;
         t_cycles += IX_OPCODES[usize::from(ix_opcode)].1(self, bus);
         t_cycles
     }
 
     fn ld_ix_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        let n_low = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
-        let n_high = bus.read(self.pc.0);
-        self.pc += Wrapping(1);
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         self.ix = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
 
     fn pop_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.l = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         self.h = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         0
     }
 
     fn push_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.h);
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.l);
         0
     }
 
     fn pop_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.f = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         self.a = bus.read(self.sp);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         0
     }
 
     fn push_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.a);
-        self.sp -= 1;
+        self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.f);
         0
     }

@@ -766,7 +766,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_bc_0xbaad() {
+    fn test_ld_bc_nn() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x01);
@@ -819,7 +819,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_b_0xd9() {
+    fn test_ld_b_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x06);
@@ -870,7 +870,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_c_0xd9() {
+    fn test_ld_c_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0e);
@@ -887,7 +887,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_de_0xbaad() {
+    fn test_ld_de_nn() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x11);
@@ -940,7 +940,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_d_0xd9() {
+    fn test_ld_d_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x16);
@@ -991,7 +991,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_e_0xd9() {
+    fn test_ld_e_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1e);
@@ -1008,7 +1008,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_hl_0x4001() {
+    fn test_ld_hl_nn() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x21);
@@ -1061,7 +1061,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_h_0xd9() {
+    fn test_ld_h_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x26);
@@ -1112,7 +1112,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_l_0xd9() {
+    fn test_ld_l_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2e);
@@ -1129,7 +1129,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_sp_0xbaad() {
+    fn test_ld_sp_nn() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x31);
@@ -1181,7 +1181,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_a_0x2a() {
+    fn test_ld_a_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
@@ -2376,7 +2376,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ld_ix_0xbaad() {
+    fn test_ld_ix_nn() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xdd);

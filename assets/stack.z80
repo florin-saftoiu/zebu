@@ -6,3 +6,15 @@
     PUSH DE
     LD DE, $BAAD
     PUSH DE
+_C: CALL _A
+    JP _C
+    NOP
+    NOP
+    NOP
+_A: LD BC, $AAAA
+    PUSH BC
+    LD HL, $40F5
+    LD A, $BB
+    LD (HL), A
+    POP BC
+    RET

@@ -21,7 +21,7 @@ impl<'a> ReadWrite for Z80Bus<'a> {
         if addr < 0x4000 {
             self.rom[usize::from(addr)]
         } else {
-            self.ram[usize::from(addr)]
+            self.ram[usize::from(addr - 0x4000)]
         }
     }
 

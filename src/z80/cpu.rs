@@ -80,7 +80,7 @@ impl Z80CPU {
             t_cycles: 0
         }
     }
-
+    
     pub fn clock(&mut self, bus: &mut dyn ReadWrite) {
         if self.t_cycles == 0 {
             let opcode = bus.read(self.pc);
@@ -88,21 +88,21 @@ impl Z80CPU {
             self.t_cycles = OPCODES[usize::from(opcode)].3;
             self.t_cycles += OPCODES[usize::from(opcode)].1(self, bus);
         }
-
+        
         self.t_cycles -= 1;
     }
-
+    
     pub fn reset(&mut self) {
         self.pc = 0;
         self.i = 0;
         self.r = 0;
         self.t_cycles = 3;
     }
-
+    
     pub fn instruction_complete(&self) -> bool {
         self.t_cycles == 0
     }
-
+    
     pub fn get_next_instructions(&self, bus: &dyn ReadWrite, nb: usize) -> Vec<String> {
         let mut instructions = vec![];
         let mut pc = self.pc;
@@ -145,7 +145,7 @@ impl Z80CPU {
         }
         instructions
     }
-
+    
     pub fn get_state(&self) -> Z80CPUState {
         Z80CPUState {
             a: self.a, f: self.f, a_alt: self.a_alt, f_alt: self.f_alt,
@@ -159,11 +159,11 @@ impl Z80CPU {
             pc: self.pc
         }
     }
-
+    
     fn nop(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         0
     }
-
+    
     fn ld_bc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -173,13 +173,13 @@ impl Z80CPU {
         self.b = n_high;
         0
     }
-
+    
     fn ld_ptr_bc_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
         bus.write(bc, self.a);
         0
     }
-
+    
     fn inc_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.c.wrapping_add(1);
         if self.c == 0 {
@@ -187,24 +187,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.b.wrapping_add(1);
         0
     }
-
+    
     fn dec_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.b.wrapping_sub(1);
         0
     }
-
+    
     fn ld_b_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.b = n;
         0
     }
-
+    
     fn rlca(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         if self.a & 0b10000000 == 0b10000000 {
             self.f |= 0b00000001;
@@ -215,7 +215,7 @@ impl Z80CPU {
         self.f &= 0b11101101;
         0
     }
-
+    
     fn ex_af_af_alt(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let temp_a = self.a;
         self.a = self.a_alt;
@@ -225,7 +225,7 @@ impl Z80CPU {
         self.f_alt = temp_f;
         0
     }
-
+    
     fn add_hl_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
@@ -246,13 +246,13 @@ impl Z80CPU {
         self.f &= 0b11111101;
         0
     }
-
+    
     fn ld_a_ptr_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
         self.a = bus.read(bc);
         0
     }
-
+    
     fn dec_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.c.wrapping_sub(1);
         if self.c == 0xff {
@@ -260,24 +260,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.c.wrapping_add(1);
         0
     }
-
+    
     fn dec_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.c.wrapping_sub(1);
         0
     }
-
+    
     fn ld_c_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.c = n;
         0
     }
-
+    
     fn rrca(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         if self.a & 0b00000001 == 0b00000001 {
             self.f |= 0b00000001;
@@ -288,7 +288,7 @@ impl Z80CPU {
         self.f &= 0b11101101;
         0
     }
-
+    
     fn ld_de_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -298,7 +298,7 @@ impl Z80CPU {
         self.d = n_high;
         0
     }
-
+    
     fn inc_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e.wrapping_add(1);
         if self.e == 0 {
@@ -306,24 +306,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.d.wrapping_add(1);
         0
     }
-
+    
     fn dec_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.d.wrapping_sub(1);
         0
     }
-
+    
     fn ld_d_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.d = n;
         0
     }
-
+    
     fn add_hl_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
@@ -344,13 +344,13 @@ impl Z80CPU {
         self.f &= 0b11111101;
         0
     }
-
+    
     fn ld_a_ptr_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
         self.a = bus.read(de);
         0
     }
-
+    
     fn dec_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e.wrapping_sub(1);
         if self.e == 0xff {
@@ -358,24 +358,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e.wrapping_add(1);
         0
     }
-
+    
     fn dec_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e.wrapping_sub(1);
         0
     }
-
+    
     fn ld_e_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.e = n;
         0
     }
-
+    
     fn ld_hl_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -385,7 +385,7 @@ impl Z80CPU {
         self.h = n_high;
         0
     }
-
+    
     fn inc_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.l.wrapping_add(1);
         if self.l == 0 {
@@ -393,24 +393,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.h.wrapping_add(1);
         0
     }
-
+    
     fn dec_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.h.wrapping_sub(1);
         0
     }
-
+    
     fn ld_h_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.h = n;
         0
     }
-
+    
     fn add_hl_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let (sum, carry) = hl.overflowing_add(hl);
@@ -430,7 +430,7 @@ impl Z80CPU {
         self.f &= 0b11111101;
         0
     }
-
+    
     fn dec_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.l.wrapping_sub(1);
         if self.l == 0xff {
@@ -438,24 +438,24 @@ impl Z80CPU {
         }
         0
     }
-
+    
     fn inc_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.l.wrapping_add(1);
         0
     }
-
+    
     fn dec_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.l.wrapping_sub(1);
         0
     }
-
+    
     fn ld_l_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.l = n;
         0
     }
-
+    
     fn ld_sp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -464,12 +464,12 @@ impl Z80CPU {
         self.sp = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
-
+    
     fn inc_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_add(1);
         0
     }
-
+    
     fn add_hl_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let (sum, carry) = hl.overflowing_add(self.sp);
@@ -489,358 +489,358 @@ impl Z80CPU {
         self.f &= 0b11111101;
         0
     }
-
+    
     fn dec_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         0
     }
-
+    
     fn inc_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a.wrapping_add(1);
         0
     }
-
+    
     fn dec_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a.wrapping_sub(1);
         0
     }
-
+    
     fn ld_a_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.a = n;
         0
     }
-
+    
     fn ld_b_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.b;
         0
     }
-
+    
     fn ld_b_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.c;
         0
     }
-
+    
     fn ld_b_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.d;
         0
     }
-
+    
     fn ld_b_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.e;
         0
     }
-
+    
     fn ld_b_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.h;
         0
     }
-
+    
     fn ld_b_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.l;
         0
     }
-
+    
     fn ld_b_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.b = bus.read(hl);
         0
     }
-
+    
     fn ld_b_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.b = self.a;
         0
     }
-
+    
     fn ld_c_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.b;
         0
     }
-
+    
     fn ld_c_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.c;
         0
     }
-
+    
     fn ld_c_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.d;
         0
     }
-
+    
     fn ld_c_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.e;
         0
     }
-
+    
     fn ld_c_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.h;
         0
     }
-
+    
     fn ld_c_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.l;
         0
     }
-
+    
     fn ld_c_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.c = bus.read(hl);
         0
     }
-
+    
     fn ld_c_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.c = self.a;
         0
     }
-
+    
     fn ld_d_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.b;
         0
     }
-
+    
     fn ld_d_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.c;
         0
     }
-
+    
     fn ld_d_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.d;
         0
     }
-
+    
     fn ld_d_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.e;
         0
     }
-
+    
     fn ld_d_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.h;
         0
     }
-
+    
     fn ld_d_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.l;
         0
     }
-
+    
     fn ld_d_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.d = bus.read(hl);
         0
     }
-
+    
     fn ld_d_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.d = self.a;
         0
     }
-
+    
     fn ld_e_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.b;
         0
     }
-
+    
     fn ld_e_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.c;
         0
     }
-
+    
     fn ld_e_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.d;
         0
     }
-
+    
     fn ld_e_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e;
         0
     }
-
+    
     fn ld_e_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.h;
         0
     }
-
+    
     fn ld_e_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.l;
         0
     }
-
+    
     fn ld_e_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.e = bus.read(hl);
         0
     }
-
+    
     fn ld_e_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.a;
         0
     }
-
+    
     fn ld_h_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.b;
         0
     }
-
+    
     fn ld_h_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.c;
         0
     }
-
+    
     fn ld_h_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.d;
         0
     }
-
+    
     fn ld_h_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.e;
         0
     }
-
+    
     fn ld_h_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.h;
         0
     }
-
+    
     fn ld_h_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.l;
         0
     }
-
+    
     fn ld_h_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.h = bus.read(hl);
         0
     }
-
+    
     fn ld_h_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.h = self.a;
         0
     }
-
+    
     fn ld_l_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.b;
         0
     }
-
+    
     fn ld_l_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.c;
         0
     }
-
+    
     fn ld_l_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.d;
         0
     }
-
+    
     fn ld_l_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.e;
         0
     }
-
+    
     fn ld_l_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.h;
         0
     }
-
+    
     fn ld_l_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.l;
         0
     }
-
+    
     fn ld_l_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.l = bus.read(hl);
         0
     }
-
+    
     fn ld_l_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.l = self.a;
         0
     }
-
+    
     fn ld_ptr_hl_b(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.b);
         0
     }
-
+    
     fn ld_ptr_hl_c(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.c);
         0
     }
-
+    
     fn ld_ptr_hl_d(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.d);
         0
     }
-
+    
     fn ld_ptr_hl_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.e);
         0
     }
-
+    
     fn ld_ptr_hl_h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.h);
         0
     }
-
+    
     fn ld_ptr_hl_l(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.l);
         0
     }
-
+    
     fn ld_ptr_hl_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.a);
         0
     }
-
+    
     fn ld_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.b;
         0
     }
-
+    
     fn ld_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.c;
         0
     }
-
+    
     fn ld_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.d;
         0
     }
-
+    
     fn ld_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.e;
         0
     }
-
+    
     fn ld_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.h;
         0
     }
-
+    
     fn ld_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.l;
         0
     }
-
+    
     fn ld_a_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = bus.read(hl);
         0
     }
-
+    
     fn ld_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a;
         0
     }
-
+    
     fn and_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.b;
         let sign = self.a > 0x7f;
@@ -864,7 +864,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.c;
         let sign = self.a > 0x7f;
@@ -888,7 +888,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.d;
         let sign = self.a > 0x7f;
@@ -912,7 +912,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.e;
         let sign = self.a > 0x7f;
@@ -936,7 +936,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.h;
         let sign = self.a > 0x7f;
@@ -960,7 +960,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.l;
         let sign = self.a > 0x7f;
@@ -984,7 +984,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = self.a & bus.read(hl);
@@ -1009,7 +1009,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn and_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a & self.a;
         let sign = self.a > 0x7f;
@@ -1033,7 +1033,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.b;
         let sign = self.a > 0x7f;
@@ -1057,7 +1057,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.c;
         let sign = self.a > 0x7f;
@@ -1081,7 +1081,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.d;
         let sign = self.a > 0x7f;
@@ -1105,7 +1105,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.e;
         let sign = self.a > 0x7f;
@@ -1129,7 +1129,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.h;
         let sign = self.a > 0x7f;
@@ -1153,7 +1153,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.l;
         let sign = self.a > 0x7f;
@@ -1177,7 +1177,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = self.a | bus.read(hl);
@@ -1202,7 +1202,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn or_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a | self.a;
         let sign = self.a > 0x7f;
@@ -1226,7 +1226,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.c = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1234,7 +1234,7 @@ impl Z80CPU {
         self.sp = self.sp.wrapping_add(1);
         0
     }
-
+    
     fn jp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -1243,7 +1243,7 @@ impl Z80CPU {
         self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
-
+    
     fn push_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.b);
@@ -1251,7 +1251,7 @@ impl Z80CPU {
         bus.write(self.sp, self.c);
         0
     }
-
+    
     fn ret(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let ret_low = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1260,7 +1260,7 @@ impl Z80CPU {
         self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
         0
     }
-
+    
     fn call_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -1273,7 +1273,7 @@ impl Z80CPU {
         self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
-
+    
     fn pop_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.e = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1281,7 +1281,7 @@ impl Z80CPU {
         self.sp = self.sp.wrapping_add(1);
         0
     }
-
+    
     fn push_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.d);
@@ -1289,7 +1289,7 @@ impl Z80CPU {
         bus.write(self.sp, self.e);
         0
     }
-
+    
     fn ix(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let ix_opcode = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -1297,7 +1297,7 @@ impl Z80CPU {
         t_cycles += IX_OPCODES[usize::from(ix_opcode)].1(self, bus);
         t_cycles
     }
-
+    
     fn ld_ix_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -1306,7 +1306,7 @@ impl Z80CPU {
         self.ix = (u16::from(n_high) << 8) + u16::from(n_low);
         0
     }
-
+    
     fn pop_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.l = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1314,7 +1314,7 @@ impl Z80CPU {
         self.sp = self.sp.wrapping_add(1);
         0
     }
-
+    
     fn push_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.h);
@@ -1322,7 +1322,7 @@ impl Z80CPU {
         bus.write(self.sp, self.l);
         0
     }
-
+    
     fn pop_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.f = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1330,7 +1330,7 @@ impl Z80CPU {
         self.sp = self.sp.wrapping_add(1);
         0
     }
-
+    
     fn push_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.a);
@@ -1338,13 +1338,13 @@ impl Z80CPU {
         bus.write(self.sp, self.f);
         0
     }
-
+    
     fn ld_sp_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.sp = hl;
         0
     }
-
+    
     fn invalid_opcode(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         0
     }
@@ -1353,10 +1353,10 @@ impl Z80CPU {
 #[cfg(test)]
 mod tests {
     use mockall::predicate::*;
-
+    
     use super::*;
     use super::super::machine::MockReadWrite;
-
+    
     #[test]
     fn test_nop() {
         let mut cpu = Z80CPU::new();
@@ -1367,11 +1367,11 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: NOP");
     }
-
+    
     #[test]
     fn test_ld_bc_nn() {
         let mut cpu = Z80CPU::new();
@@ -1379,141 +1379,141 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x01);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
-
+        
         cpu.reset();
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0xba);
         assert_eq!(cpu.c, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: LD BC, $BAAD");
     }
-
+    
     #[test]
     fn test_ld_ptr_bc_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x02);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x40;
         cpu.c = 0x01;
         cpu.a = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (BC), A");
+        assert_eq!(disasm, "0000: LD (BC), A");
     }
-
+    
     #[test]
     fn test_inc_bc() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x03);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x01;
         cpu.c = 0xff;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x02);
         assert_eq!(cpu.c, 0x00);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: INC BC");
     }
-
+    
     #[test]
     fn test_inc_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x04);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC B");
     }
-
+    
     #[test]
     fn test_dec_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x05);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC B");
     }
-
+    
     #[test]
     fn test_ld_b_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x06);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: LD B, $D9");
     }
-
+    
     #[test]
     fn test_rlca() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x07);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0b10001000;
         cpu.f = 0b00010010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0b00010001);
         assert_eq!(cpu.f & 0b00010011, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RLCA");
     }
-
+    
     #[test]
     fn test_ex_af_af_alt() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x08);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x99;
         cpu.f = 0x48;
         cpu.a_alt = 0x59;
         cpu.f_alt = 0x44;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x59);
         assert_eq!(cpu.f, 0x44);
         assert_eq!(cpu.a_alt, 0x99);
@@ -1521,15 +1521,15 @@ mod tests {
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: EX AF, AF'");
     }
-
+    
     #[test]
     fn test_add_hl_bc() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x09);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xff;
         cpu.l = 0xfe;
@@ -1537,122 +1537,122 @@ mod tests {
         cpu.c = 0x34;
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, BC");
     }
-
+    
     #[test]
     fn test_ld_a_ptr_bc() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0a);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x40;
         cpu.c = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD A, (BC)");
+        assert_eq!(disasm, "0000: LD A, (BC)");
     }
-
+    
     #[test]
     fn test_dec_bc() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x02;
         cpu.c = 0x00;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x01);
         assert_eq!(cpu.c, 0xff);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: DEC BC");
     }
-
+    
     #[test]
     fn test_inc_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC C");
     }
-
+    
     #[test]
     fn test_dec_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC C");
     }
-
+    
     #[test]
     fn test_ld_c_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD C, $D9");
+        assert_eq!(disasm, "0000: LD C, $D9");
     }
-
+    
     #[test]
     fn test_rrca() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0f);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0b00010001;
         cpu.f = 0b00010010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0b10001000);
         assert_eq!(cpu.f & 0b00010011, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RRCA");
     }
-
+    
     #[test]
     fn test_ld_de_nn() {
         let mut cpu = Z80CPU::new();
@@ -1660,96 +1660,96 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x11);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0xba);
         assert_eq!(cpu.e, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: LD DE, $BAAD");
+        assert_eq!(disasm, "0000: LD DE, $BAAD");
     }
-
+    
     #[test]
     fn test_inc_de() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x13);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x01;
         cpu.e = 0xff;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x02);
         assert_eq!(cpu.e, 0x00);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: INC DE");
     }
-
+    
     #[test]
     fn test_inc_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x14);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC D");
     }
-
+    
     #[test]
     fn test_dec_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x15);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC D");
     }
-
+    
     #[test]
     fn test_ld_d_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x16);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD D, $D9");
+        assert_eq!(disasm, "0000: LD D, $D9");
     }
-
+    
     #[test]
     fn test_add_hl_de() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x19);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xff;
         cpu.l = 0xfe;
@@ -1757,103 +1757,103 @@ mod tests {
         cpu.e = 0x34;
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, DE");
     }
-
+    
     #[test]
     fn test_ld_a_ptr_de() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1a);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x40;
         cpu.e = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD A, (DE)");
+        assert_eq!(disasm, "0000: LD A, (DE)");
     }
-
+    
     #[test]
     fn test_dec_de() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x02;
         cpu.e = 0x00;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x01);
         assert_eq!(cpu.e, 0xff);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: DEC DE");
     }
-
+    
     #[test]
     fn test_inc_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC E");
     }
-
+    
     #[test]
     fn test_dec_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC E");
     }
-
+    
     #[test]
     fn test_ld_e_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD E, $D9");
+        assert_eq!(disasm, "0000: LD E, $D9");
     }
-
+    
     #[test]
     fn test_ld_hl_nn() {
         let mut cpu = Z80CPU::new();
@@ -1861,179 +1861,179 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x21);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x01);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x40);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x40);
         assert_eq!(cpu.l, 0x01);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: LD HL, $4001");
+        assert_eq!(disasm, "0000: LD HL, $4001");
     }
-
+    
     #[test]
     fn test_inc_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x23);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x01;
         cpu.l = 0xff;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x02);
         assert_eq!(cpu.l, 0x00);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: INC HL");
     }
-
+    
     #[test]
     fn test_inc_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x24);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC H");
     }
-
+    
     #[test]
     fn test_dec_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x25);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC H");
     }
-
+    
     #[test]
     fn test_ld_h_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x26);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD H, $D9");
+        assert_eq!(disasm, "0000: LD H, $D9");
     }
-
+    
     #[test]
     fn test_add_hl_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x29);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xff;
         cpu.l = 0xfe;
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0xff);
         assert_eq!(cpu.l, 0xfc);
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, HL");
     }
-
+    
     #[test]
     fn test_dec_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x02;
         cpu.l = 0x00;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x01);
         assert_eq!(cpu.l, 0xff);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: DEC HL");
     }
-
+    
     #[test]
     fn test_inc_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC L");
     }
-
+    
     #[test]
     fn test_dec_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC L");
     }
-
+    
     #[test]
     fn test_ld_l_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0xd9);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD L, $D9");
+        assert_eq!(disasm, "0000: LD L, $D9");
     }
-
+    
     #[test]
     fn test_ld_sp_nn() {
         let mut cpu = Z80CPU::new();
@@ -2041,1289 +2041,1289 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x31);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.sp, 0xbaad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: LD SP, $BAAD");
+        assert_eq!(disasm, "0000: LD SP, $BAAD");
     }
-
+    
     #[test]
     fn test_inc_sp() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x33);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x01ff;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.sp, 0x0200);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: INC SP");
     }
-
+    
     #[test]
     fn test_add_hl_sp() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x39);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xff;
         cpu.l = 0xfe;
         cpu.sp = 0x1234;
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, SP");
     }
-
+    
     #[test]
     fn test_dec_sp() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x0200;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.sp, 0x01ff);
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: DEC SP");
     }
-
+    
     #[test]
     fn test_inc_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xfb;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfc);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: INC A");
     }
-
+    
     #[test]
     fn test_dec_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xfc;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC A");
     }
-
+    
     #[test]
     fn test_ld_a_n() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD A, $2A");
+        assert_eq!(disasm, "0000: LD A, $2A");
     }
-
+    
     #[test]
     fn test_ld_b_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x40);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, B");
+        assert_eq!(disasm, "0000: LD B, B");
     }
-
+    
     #[test]
     fn test_ld_b_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x41);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, C");
+        assert_eq!(disasm, "0000: LD B, C");
     }
-
+    
     #[test]
     fn test_ld_b_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x42);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, D");
+        assert_eq!(disasm, "0000: LD B, D");
     }
-
+    
     #[test]
     fn test_ld_b_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x43);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, E");
+        assert_eq!(disasm, "0000: LD B, E");
     }
-
+    
     #[test]
     fn test_ld_b_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x44);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, H");
+        assert_eq!(disasm, "0000: LD B, H");
     }
-
+    
     #[test]
     fn test_ld_b_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x45);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, L");
+        assert_eq!(disasm, "0000: LD B, L");
     }
-
+    
     #[test]
     fn test_ld_b_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x46);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD B, (HL)");
+        assert_eq!(disasm, "0000: LD B, (HL)");
     }
-
+    
     #[test]
     fn test_ld_b_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x47);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD B, A");
+        assert_eq!(disasm, "0000: LD B, A");
     }
-
+    
     #[test]
     fn test_ld_c_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x48);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, B");
+        assert_eq!(disasm, "0000: LD C, B");
     }
-
+    
     #[test]
     fn test_ld_c_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x49);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, C");
+        assert_eq!(disasm, "0000: LD C, C");
     }
-
+    
     #[test]
     fn test_ld_c_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, D");
+        assert_eq!(disasm, "0000: LD C, D");
     }
-
+    
     #[test]
     fn test_ld_c_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, E");
+        assert_eq!(disasm, "0000: LD C, E");
     }
-
+    
     #[test]
     fn test_ld_c_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, H");
+        assert_eq!(disasm, "0000: LD C, H");
     }
-
+    
     #[test]
     fn test_ld_c_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, L");
+        assert_eq!(disasm, "0000: LD C, L");
     }
-
+    
     #[test]
     fn test_ld_c_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD C, (HL)");
+        assert_eq!(disasm, "0000: LD C, (HL)");
     }
-
+    
     #[test]
     fn test_ld_c_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4f);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.c, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD C, A");
+        assert_eq!(disasm, "0000: LD C, A");
     }
-
+    
     #[test]
     fn test_ld_d_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x50);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, B");
+        assert_eq!(disasm, "0000: LD D, B");
     }
-
+    
     #[test]
     fn test_ld_d_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x51);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, C");
+        assert_eq!(disasm, "0000: LD D, C");
     }
-
+    
     #[test]
     fn test_ld_d_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x52);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, D");
+        assert_eq!(disasm, "0000: LD D, D");
     }
-
+    
     #[test]
     fn test_ld_d_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x53);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, E");
+        assert_eq!(disasm, "0000: LD D, E");
     }
-
+    
     #[test]
     fn test_ld_d_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x54);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, H");
+        assert_eq!(disasm, "0000: LD D, H");
     }
-
+    
     #[test]
     fn test_ld_d_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x55);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, L");
+        assert_eq!(disasm, "0000: LD D, L");
     }
-
+    
     #[test]
     fn test_ld_d_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x56);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD D, (HL)");
+        assert_eq!(disasm, "0000: LD D, (HL)");
     }
-
+    
     #[test]
     fn test_ld_d_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x57);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD D, A");
+        assert_eq!(disasm, "0000: LD D, A");
     }
-
+    
     #[test]
     fn test_ld_e_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x58);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, B");
+        assert_eq!(disasm, "0000: LD E, B");
     }
-
+    
     #[test]
     fn test_ld_e_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x59);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, C");
+        assert_eq!(disasm, "0000: LD E, C");
     }
-
+    
     #[test]
     fn test_ld_e_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, D");
+        assert_eq!(disasm, "0000: LD E, D");
     }
-
+    
     #[test]
     fn test_ld_e_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, E");
+        assert_eq!(disasm, "0000: LD E, E");
     }
-
+    
     #[test]
     fn test_ld_e_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, H");
+        assert_eq!(disasm, "0000: LD E, H");
     }
-
+    
     #[test]
     fn test_ld_e_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, L");
+        assert_eq!(disasm, "0000: LD E, L");
     }
-
+    
     #[test]
     fn test_ld_e_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD E, (HL)");
+        assert_eq!(disasm, "0000: LD E, (HL)");
     }
-
+    
     #[test]
     fn test_ld_e_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5f);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.e, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD E, A");
+        assert_eq!(disasm, "0000: LD E, A");
     }
-
+    
     #[test]
     fn test_ld_h_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x60);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, B");
+        assert_eq!(disasm, "0000: LD H, B");
     }
-
+    
     #[test]
     fn test_ld_h_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x61);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, C");
+        assert_eq!(disasm, "0000: LD H, C");
     }
-
+    
     #[test]
     fn test_ld_h_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x62);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, D");
+        assert_eq!(disasm, "0000: LD H, D");
     }
-
+    
     #[test]
     fn test_ld_h_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x63);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, E");
+        assert_eq!(disasm, "0000: LD H, E");
     }
-
+    
     #[test]
     fn test_ld_h_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x64);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, H");
+        assert_eq!(disasm, "0000: LD H, H");
     }
-
+    
     #[test]
     fn test_ld_h_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x65);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, L");
+        assert_eq!(disasm, "0000: LD H, L");
     }
-
+    
     #[test]
     fn test_ld_h_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x66);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD H, (HL)");
+        assert_eq!(disasm, "0000: LD H, (HL)");
     }
-
+    
     #[test]
     fn test_ld_h_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x67);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD H, A");
+        assert_eq!(disasm, "0000: LD H, A");
     }
-
+    
     #[test]
     fn test_ld_l_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x68);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, B");
+        assert_eq!(disasm, "0000: LD L, B");
     }
-
+    
     #[test]
     fn test_ld_l_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x69);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, C");
+        assert_eq!(disasm, "0000: LD L, C");
     }
-
+    
     #[test]
     fn test_ld_l_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, D");
+        assert_eq!(disasm, "0000: LD L, D");
     }
-
+    
     #[test]
     fn test_ld_l_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, E");
+        assert_eq!(disasm, "0000: LD L, E");
     }
-
+    
     #[test]
     fn test_ld_l_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, H");
+        assert_eq!(disasm, "0000: LD L, H");
     }
-
+    
     #[test]
     fn test_ld_l_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, L");
+        assert_eq!(disasm, "0000: LD L, L");
     }
-
+    
     #[test]
     fn test_ld_l_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD L, (HL)");
+        assert_eq!(disasm, "0000: LD L, (HL)");
     }
-
+    
     #[test]
     fn test_ld_l_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6f);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.l, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD L, A");
+        assert_eq!(disasm, "0000: LD L, A");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x70);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.b = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), B");
+        assert_eq!(disasm, "0000: LD (HL), B");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x71);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.c = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), C");
+        assert_eq!(disasm, "0000: LD (HL), C");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x72);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.d = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), D");
+        assert_eq!(disasm, "0000: LD (HL), D");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x73);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.e = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), E");
+        assert_eq!(disasm, "0000: LD (HL), E");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x74);
         mock_bus.expect_write().with(eq(0x4001), eq(0x40)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), H");
+        assert_eq!(disasm, "0000: LD (HL), H");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x75);
         mock_bus.expect_write().with(eq(0x4001), eq(0x01)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), L");
+        assert_eq!(disasm, "0000: LD (HL), L");
     }
-
+    
     #[test]
     fn test_ld_ptr_hl_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x77);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.a = 0x2a;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD (HL), A");
+        assert_eq!(disasm, "0000: LD (HL), A");
     }
-
+    
     #[test]
     fn test_ld_a_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x78);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, B");
+        assert_eq!(disasm, "0000: LD A, B");
     }
-
+    
     #[test]
     fn test_ld_a_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x79);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, C");
+        assert_eq!(disasm, "0000: LD A, C");
     }
-
+    
     #[test]
     fn test_ld_a_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, D");
+        assert_eq!(disasm, "0000: LD A, D");
     }
-
+    
     #[test]
     fn test_ld_a_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7b);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, E");
+        assert_eq!(disasm, "0000: LD A, E");
     }
-
+    
     #[test]
     fn test_ld_a_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7c);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, H");
+        assert_eq!(disasm, "0000: LD A, H");
     }
-
+    
     #[test]
     fn test_ld_a_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7d);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, L");
+        assert_eq!(disasm, "0000: LD A, L");
     }
-
+    
     #[test]
     fn test_ld_a_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x2a);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: LD A, (HL)");
+        assert_eq!(disasm, "0000: LD A, (HL)");
     }
-
+    
     #[test]
     fn test_ld_a_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7f);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x57;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0x57);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: LD A, A");
+        assert_eq!(disasm, "0000: LD A, A");
     }
-
+    
     #[test]
     fn test_and_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa0);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.b = 0xf5;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND B");
+        assert_eq!(disasm, "0000: AND B");
     }
-
+    
     #[test]
     fn test_and_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa1);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.c = 0xf5;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND C");
+        assert_eq!(disasm, "0000: AND C");
     }
-
+    
     #[test]
     fn test_and_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa2);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.d = 0xf5;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND D");
+        assert_eq!(disasm, "0000: AND D");
     }
-
+    
     #[test]
     fn test_and_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa3);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.e = 0xf5;
@@ -3332,158 +3332,158 @@ mod tests {
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND E");
+        assert_eq!(disasm, "0000: AND E");
     }
-
+    
     #[test]
     fn test_and_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa4);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.h = 0xf5;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND H");
+        assert_eq!(disasm, "0000: AND H");
     }
-
+    
     #[test]
     fn test_and_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa5);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.l = 0xf5;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND L");
+        assert_eq!(disasm, "0000: AND L");
     }
-
+    
     #[test]
     fn test_and_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa6);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0xf5);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc1);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: AND (HL)");
+        assert_eq!(disasm, "0000: AND (HL)");
     }
-
+    
     #[test]
     fn test_and_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa7);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.f = 0b01010011;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xc3);
         assert_eq!(cpu.f & 0b10000100, 0b10000100);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: AND A");
+        assert_eq!(disasm, "0000: AND A");
     }
-
+    
     #[test]
     fn test_or_b() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb0);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.b = 0xfa;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR B");
+        assert_eq!(disasm, "0000: OR B");
     }
-
+    
     #[test]
     fn test_or_c() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb1);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.c = 0xfa;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR C");
+        assert_eq!(disasm, "0000: OR C");
     }
-
+    
     #[test]
     fn test_or_d() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb2);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.d = 0xfa;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR D");
+        assert_eq!(disasm, "0000: OR D");
     }
-
+    
     #[test]
     fn test_or_e() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb3);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.e = 0xfa;
@@ -3492,90 +3492,90 @@ mod tests {
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR E");
+        assert_eq!(disasm, "0000: OR E");
     }
-
+    
     #[test]
     fn test_or_h() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb4);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.h = 0xfa;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR H");
+        assert_eq!(disasm, "0000: OR H");
     }
-
+    
     #[test]
     fn test_or_l() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb5);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.l = 0xfa;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR L");
+        assert_eq!(disasm, "0000: OR L");
     }
-
+    
     #[test]
     fn test_or_ptr_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb6);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0xfa);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.h = 0x40;
         cpu.l = 0x01;
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfb);
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
-		assert_eq!(disasm, "0000: OR (HL)");
+        assert_eq!(disasm, "0000: OR (HL)");
     }
-
+    
     #[test]
     fn test_or_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb7);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.f = 0b01010011;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xfa);
         assert_eq!(cpu.f & 0b10000100, 0b10000100);
         assert_eq!(1 + cpu.t_cycles, 4);
-		assert_eq!(disasm, "0000: OR A");
+        assert_eq!(disasm, "0000: OR A");
     }
-
+    
     #[test]
     fn test_pop_bc() {
         let mut cpu = Z80CPU::new();
@@ -3583,19 +3583,19 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.b, 0xba);
         assert_eq!(cpu.c, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: POP BC");
+        assert_eq!(disasm, "0000: POP BC");
     }
-
+    
     #[test]
     fn test_jp_nn() {
         let mut cpu = Z80CPU::new();
@@ -3603,17 +3603,17 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc3);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.pc, 0xbaad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: JP $BAAD");
+        assert_eq!(disasm, "0000: JP $BAAD");
     }
-
+    
     #[test]
     fn test_push_bc() {
         let mut cpu = Z80CPU::new();
@@ -3621,19 +3621,19 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0xba;
         cpu.c = 0xad;
         cpu.sp = 0x5000;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 11);
-		assert_eq!(disasm, "0000: PUSH BC");
+        assert_eq!(disasm, "0000: PUSH BC");
     }
-
+    
     #[test]
     fn test_ret() {
         let mut cpu = Z80CPU::new();
@@ -3644,17 +3644,17 @@ mod tests {
         
         cpu.reset();
         cpu.pc = 0xbaad;
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.pc, 0x1237);
         assert_eq!(cpu.sp, 0x5000);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "BAAD: RET");
+        assert_eq!(disasm, "BAAD: RET");
     }
-
+    
     #[test]
     fn test_call_nn() {
         let mut cpu = Z80CPU::new();
@@ -3664,20 +3664,20 @@ mod tests {
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x37)).return_const(());
-
+        
         cpu.reset();
         cpu.pc = 0x1234;
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x5000;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.pc, 0xbaad);
         assert_eq!(cpu.sp, 0x4ffe);
         assert_eq!(1 + cpu.t_cycles, 17);
-		assert_eq!(disasm, "1234: CALL $BAAD");
+        assert_eq!(disasm, "1234: CALL $BAAD");
     }
-
+    
     #[test]
     fn test_pop_de() {
         let mut cpu = Z80CPU::new();
@@ -3685,20 +3685,20 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.d, 0xba);
         assert_eq!(cpu.e, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: POP DE");
+        assert_eq!(disasm, "0000: POP DE");
     }
-
-
+    
+    
     #[test]
     fn test_push_de() {
         let mut cpu = Z80CPU::new();
@@ -3706,19 +3706,19 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0xba;
         cpu.e = 0xad;
         cpu.sp = 0x5000;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 11);
-		assert_eq!(disasm, "0000: PUSH DE");
+        assert_eq!(disasm, "0000: PUSH DE");
     }
-
+    
     #[test]
     fn test_ld_ix_nn() {
         let mut cpu = Z80CPU::new();
@@ -3732,12 +3732,12 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.ix, 0xbaad);
         assert_eq!(1 + cpu.t_cycles, 14);
         assert_eq!(disasm, "0000: LD IX, $BAAD");
     }
-
+    
     #[test]
     fn test_pop_hl() {
         let mut cpu = Z80CPU::new();
@@ -3745,19 +3745,19 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.h, 0xba);
         assert_eq!(cpu.l, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: POP HL");
+        assert_eq!(disasm, "0000: POP HL");
     }
-
+    
     #[test]
     fn test_push_hl() {
         let mut cpu = Z80CPU::new();
@@ -3765,19 +3765,19 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xba;
         cpu.l = 0xad;
         cpu.sp = 0x5000;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 11);
-		assert_eq!(disasm, "0000: PUSH HL");
+        assert_eq!(disasm, "0000: PUSH HL");
     }
-
+    
     #[test]
     fn test_pop_af() {
         let mut cpu = Z80CPU::new();
@@ -3785,20 +3785,20 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.sp = 0x4ffe;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.a, 0xba);
         assert_eq!(cpu.f, 0xad);
         assert_eq!(1 + cpu.t_cycles, 10);
-		assert_eq!(disasm, "0000: POP AF");
+        assert_eq!(disasm, "0000: POP AF");
     }
-
-
+    
+    
     #[test]
     fn test_push_af() {
         let mut cpu = Z80CPU::new();
@@ -3806,34 +3806,34 @@ mod tests {
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xba;
         cpu.f = 0xad;
         cpu.sp = 0x5000;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(1 + cpu.t_cycles, 11);
-		assert_eq!(disasm, "0000: PUSH AF");
+        assert_eq!(disasm, "0000: PUSH AF");
     }
-
+    
     #[test]
     fn test_ld_sp_hl() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf9);
-
+        
         cpu.reset();
-		let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0x40;
         cpu.l = 0xff;
         cpu.clock(&mut mock_bus);
-
+        
         assert_eq!(cpu.sp, 0x40ff);
         assert_eq!(1 + cpu.t_cycles, 6);
-		assert_eq!(disasm, "0000: LD SP, HL");
+        assert_eq!(disasm, "0000: LD SP, HL");
     }
 }

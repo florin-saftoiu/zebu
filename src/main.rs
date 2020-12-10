@@ -81,14 +81,14 @@ fn print_stack_state(ram_slice: Result<&[u8], &str>, offset: u16) {
 fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
     let lines = format!(
         "AF: {:02X}{:02X} AF': {:02X}{:02X}\n\
-         BC: {:02X}{:02X} BC': {:02X}{:02X}\n\
-         DE: {:02X}{:02X} DE': {:02X}{:02X}\n\
-         HL: {:02X}{:02X} HL': {:02X}{:02X}\n\
-         \x20I:   {:02X}   R:   {:02X}\n\
-         IX: {:04X}\n\
-         IY: {:04X}\n\
-         SP: {:04X}\n\
-         PC: {:04X}",
+        BC: {:02X}{:02X} BC': {:02X}{:02X}\n\
+        DE: {:02X}{:02X} DE': {:02X}{:02X}\n\
+        HL: {:02X}{:02X} HL': {:02X}{:02X}\n\
+        \x20I:   {:02X}   R:   {:02X}\n\
+        IX: {:04X}\n\
+        IY: {:04X}\n\
+        SP: {:04X}\n\
+        PC: {:04X}",
         state.a, state.f, state.a_alt, state.f_alt,
         state.b, state.c, state.b_alt, state.c_alt,
         state.d, state.e, state.d_alt, state.e_alt,
@@ -186,7 +186,7 @@ fn draw_stack_state(ram_slice: Result<&[u8], &str>, offset: u16, c: Context, g: 
 fn main() -> io::Result<()> {
     println!("Zebu");
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
-
+    
     let mut cpu = Z80CPU::new();
     let mut rom_file = File::open(assets.join("stack.bin"))?;
     let mut rom = [0; 16 * 1024];
@@ -196,13 +196,13 @@ fn main() -> io::Result<()> {
     machine.reset();
     
     let mut window: PistonWindow = WindowSettings::new("Zebu", [1024, 768])
-            .resizable(false)
-            .exit_on_esc(true)
-            .automatic_close(true)
-            .build()
-            .unwrap();
+    .resizable(false)
+    .exit_on_esc(true)
+    .automatic_close(true)
+    .build()
+    .unwrap();
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
-
+    
     let mut paused = true;
     while let Some(e) = window.next() {
         if paused {
@@ -249,27 +249,27 @@ fn main() -> io::Result<()> {
                 machine.clock();
             }
         }
-
+        
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if key == Key::R {
                 machine.reset();
             }
         }
-
+        
         window.draw_2d(&e, |c, g, device| {
             clear(BACKGROUND, g);
             rectangle(BLACK,
-                      [WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE],
-                      c.transform, g);
-            draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
-            draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
-            draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs);
-            draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
-
-            glyphs.factory.encoder.flush(device);
-        });
-        window.set_title(format!("Zebu - T: {}", machine.get_t_cycles()));
+                [WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE],
+                c.transform, g);
+                draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
+                draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
+                draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs);
+                draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
+                
+                glyphs.factory.encoder.flush(device);
+            });
+            window.set_title(format!("Zebu - T: {}", machine.get_t_cycles()));
+        }
+        
+        Ok(())
     }
-
-    Ok(())
-}

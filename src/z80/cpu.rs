@@ -13,7 +13,7 @@ const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] 
 /* 80 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 80 */
 /* 90 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 90 */
 /* a0 */ ("AND B"     , Z80CPU::and_b         , 0, 4), ("AND C"     , Z80CPU::and_c         , 0,  4), ("AND D"     , Z80CPU::and_d         , 0, 4), ("AND E"     , Z80CPU::and_e         , 0,  4), ("AND H"     , Z80CPU::and_h         , 0, 4), ("AND L"     , Z80CPU::and_l         , 0,  4), ("AND (HL)"  , Z80CPU::and_ptr_hl    , 0, 7), ("AND A"     , Z80CPU::and_a         , 0, 4), ("XOR B"     , Z80CPU::xor_b         , 0, 4), ("XOR C"     , Z80CPU::xor_c         , 0,  4), ("XOR D"     , Z80CPU::xor_d         , 0, 4), ("XOR E"  , Z80CPU::xor_e         , 0, 4), ("XOR H"  , Z80CPU::xor_h         , 0, 4), ("XOR L"  , Z80CPU::xor_l         , 0,  4), ("XOR (HL)"  , Z80CPU::xor_ptr_hl    , 0, 7), ("XOR A"  , Z80CPU::xor_a         , 0, 4), /* a0 */
-/* b0 */ ("OR B"      , Z80CPU::or_b          , 0, 4), ("OR C"      , Z80CPU::or_c          , 0,  4), ("OR D"      , Z80CPU::or_d          , 0, 4), ("OR E"      , Z80CPU::or_e          , 0,  4), ("OR H"      , Z80CPU::or_h          , 0, 4), ("OR L"      , Z80CPU::or_l          , 0,  4), ("OR (HL)"   , Z80CPU::or_ptr_hl     , 0, 7), ("OR A"      , Z80CPU::or_a          , 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* b0 */
+/* b0 */ ("OR B"      , Z80CPU::or_b          , 0, 4), ("OR C"      , Z80CPU::or_c          , 0,  4), ("OR D"      , Z80CPU::or_d          , 0, 4), ("OR E"      , Z80CPU::or_e          , 0,  4), ("OR H"      , Z80CPU::or_h          , 0, 4), ("OR L"      , Z80CPU::or_l          , 0,  4), ("OR (HL)"   , Z80CPU::or_ptr_hl     , 0, 7), ("OR A"      , Z80CPU::or_a          , 0, 4), ("CP B"      , Z80CPU::cp_b          , 0, 4), ("CP C"      , Z80CPU::cp_c          , 0,  4), ("CP D"      , Z80CPU::cp_d          , 0, 4), ("CP E"   , Z80CPU::cp_e          , 0, 4), ("CP H"   , Z80CPU::cp_h          , 0, 4), ("CP L"   , Z80CPU::cp_l          , 0,  4), ("CP (HL)"   , Z80CPU::cp_ptr_hl     , 0, 7), ("CP A"   , Z80CPU::cp_a          , 0, 4), /* b0 */
 /* c0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP BC"    , Z80CPU::pop_bc        , 0, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("JP"        , Z80CPU::jp_nn         , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("PUSH BC"   , Z80CPU::push_bc       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET"       , Z80CPU::ret           , 0, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL"   , Z80CPU::call_nn       , 2, 17), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* c0 */
 /* d0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP DE"    , Z80CPU::pop_de        , 0, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("PUSH DE"   , Z80CPU::push_de       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("IX"     , Z80CPU::ix            , 0,  0), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* d0 */
 /* e0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP HL"    , Z80CPU::pop_hl        , 0, 10), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("PUSH HL"   , Z80CPU::push_hl       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* e0 */
@@ -1420,6 +1420,287 @@ impl Z80CPU {
         0
     }
     
+    fn cp_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.b);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.b & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.c);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.c & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.d);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.d & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.e);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.e & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.h);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.h & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.l);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.l & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let hl = (u16::from(self.h) << 8) + u16::from(self.l);
+        let (res, carry) = self.a.overflowing_sub(bus.read(hl));
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.b & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+    
+    fn cp_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let (res, carry) = self.a.overflowing_sub(self.a);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) - (self.a & 0xf)) & 0x10 == 0x10;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        let overflow = (self.a > 0) != (res > 0);
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
     fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.c = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -3927,6 +4208,163 @@ mod tests {
         assert_eq!(cpu.f & 0b10000100, 0b10000100);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR A");
+    }
+
+    #[test]
+    fn test_cp_b() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xb8);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.b = 0x23;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP B");
+    }
+    
+    #[test]
+    fn test_cp_c() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xb9);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.c = 0x23;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP C");
+    }
+    
+    #[test]
+    fn test_cp_d() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.d = 0x23;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP D");
+    }
+    
+    #[test]
+    fn test_cp_e() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xbb);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.e = 0x23;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP E");
+    }
+    
+    #[test]
+    fn test_cp_h() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xbc);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.h = 0x23;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP H");
+    }
+    
+    #[test]
+    fn test_cp_l() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xbd);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.l = 0x23;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP L");
+    }
+    
+    #[test]
+    fn test_cp_ptr_hl() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xbe);
+        mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x23);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        cpu.h = 0x40;
+        cpu.l = 0x01;
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
+        assert_eq!(1 + cpu.t_cycles, 7);
+        assert_eq!(disasm, "0000: CP (HL)");
+    }
+    
+    #[test]
+    fn test_cp_a() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xbf);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0xfa;
+        //        SZ H VNC
+        cpu.f = 0b10010101;
+        cpu.clock(&mut mock_bus);
+        
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b01000010, 0b01000010);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: CP A");
     }
     
     #[test]

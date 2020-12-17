@@ -1033,7 +1033,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn xor_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.a = self.a ^ self.b;
         let sign = self.a > 0x7f;
@@ -1700,7 +1700,7 @@ impl Z80CPU {
         self.f |= 0b00000010;
         0
     }
-
+    
     fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.c = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1796,7 +1796,7 @@ impl Z80CPU {
         bus.write(self.sp, self.l);
         0
     }
-
+    
     fn and_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         self.a = self.a & n;
@@ -1846,7 +1846,7 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn pop_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.f = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -1887,13 +1887,13 @@ impl Z80CPU {
         self.f &= 0b11101100;
         0
     }
-
+    
     fn ld_sp_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.sp = hl;
         0
     }
-
+    
     fn cp_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n = bus.read(self.pc);
         let (res, carry) = self.a.overflowing_sub(n);
@@ -2075,10 +2075,12 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0b10001000;
+        //        SZ H VNC
         cpu.f = 0b00010010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0b00010001);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b00010011, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RLCA");
@@ -2120,12 +2122,14 @@ mod tests {
         cpu.l = 0xfe;
         cpu.b = 0x12;
         cpu.c = 0x34;
+        //        SZ H VNC
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
-        assert_eq!(cpu.f & 0b00010011, 0b00010001);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b00010001, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, BC");
     }
@@ -2229,10 +2233,12 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0b00010001;
+        //        SZ H VNC
         cpu.f = 0b00010010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0b10001000);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b00010011, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RRCA");
@@ -2340,11 +2346,13 @@ mod tests {
         cpu.l = 0xfe;
         cpu.d = 0x12;
         cpu.e = 0x34;
+        //        SZ H VNC
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, DE");
@@ -2539,11 +2547,13 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.h = 0xff;
         cpu.l = 0xfe;
+        //        SZ H VNC
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.h, 0xff);
         assert_eq!(cpu.l, 0xfc);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, HL");
@@ -2666,11 +2676,13 @@ mod tests {
         cpu.h = 0xff;
         cpu.l = 0xfe;
         cpu.sp = 0x1234;
+        //        SZ H VNC
         cpu.f = 0b00000010;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b00010011, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, SP");
@@ -3852,10 +3864,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.b = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND B");
@@ -3872,10 +3886,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.c = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND C");
@@ -3892,10 +3908,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.d = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND D");
@@ -3912,9 +3930,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.e = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND E");
@@ -3931,10 +3951,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.h = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND H");
@@ -3951,10 +3973,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.l = 0xf5;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND L");
@@ -3973,10 +3997,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.h = 0x40;
         cpu.l = 0x01;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: AND (HL)");
@@ -3992,15 +4018,17 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
+        //        SZ H VNC
         cpu.f = 0b01010011;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc3);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000100, 0b10000100);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND A");
     }
-
+    
     #[test]
     fn test_xor_b() {
         let mut cpu = Z80CPU::new();
@@ -4012,10 +4040,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.b = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR B");
@@ -4032,10 +4062,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.c = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR C");
@@ -4052,10 +4084,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.d = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR D");
@@ -4072,9 +4106,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.e = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR E");
@@ -4091,10 +4127,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.h = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR H");
@@ -4111,10 +4149,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         cpu.l = 0x15;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR L");
@@ -4133,10 +4173,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.h = 0x40;
         cpu.l = 0x01;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: XOR (HL)");
@@ -4152,15 +4194,17 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
+        //        SZ H VNC
         cpu.f = 0b10010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b01000000, 0b01000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: XOR A");
     }
-
+    
     #[test]
     fn test_or_b() {
         let mut cpu = Z80CPU::new();
@@ -4172,10 +4216,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.b = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR B");
@@ -4192,10 +4238,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.c = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR C");
@@ -4212,10 +4260,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.d = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR D");
@@ -4232,9 +4282,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.e = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR E");
@@ -4251,10 +4303,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.h = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR H");
@@ -4271,10 +4325,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0x23;
         cpu.l = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR L");
@@ -4293,10 +4349,12 @@ mod tests {
         cpu.a = 0x23;
         cpu.h = 0x40;
         cpu.l = 0x01;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: OR (HL)");
@@ -4312,15 +4370,17 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
+        //        SZ H VNC
         cpu.f = 0b01010011;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfa);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000100, 0b10000100);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: OR A");
     }
-
+    
     #[test]
     fn test_cp_b() {
         let mut cpu = Z80CPU::new();
@@ -4353,9 +4413,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.c = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: CP C");
@@ -4372,9 +4434,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.d = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: CP D");
@@ -4391,9 +4455,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.e = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: CP E");
@@ -4410,9 +4476,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.h = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: CP H");
@@ -4429,9 +4497,11 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xfa;
         cpu.l = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: CP L");
@@ -4450,9 +4520,11 @@ mod tests {
         cpu.a = 0xfa;
         cpu.h = 0x40;
         cpu.l = 0x01;
+        //        SZ H VNC
         cpu.f = 0b01010101;
         cpu.clock(&mut mock_bus);
         
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: CP (HL)");
@@ -4679,7 +4751,7 @@ mod tests {
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: PUSH HL");
     }
-
+    
     #[test]
     fn test_and_n() {
         let mut cpu = Z80CPU::new();
@@ -4691,10 +4763,12 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: AND $F5");
@@ -4711,15 +4785,17 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xd6);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: XOR $15");
     }
-
+    
     #[test]
     fn test_pop_af() {
         let mut cpu = Z80CPU::new();
@@ -4772,15 +4848,17 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0x23;
+        //        SZ H VNC
         cpu.f = 0b01010111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
         assert_eq!(cpu.f & 0b10000000, 0b10000000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: OR $FA");
     }
-
+    
     #[test]
     fn test_ld_sp_hl() {
         let mut cpu = Z80CPU::new();
@@ -4798,7 +4876,7 @@ mod tests {
         assert_eq!(1 + cpu.t_cycles, 6);
         assert_eq!(disasm, "0000: LD SP, HL");
     }
-
+    
     #[test]
     fn test_cp_n() {
         let mut cpu = Z80CPU::new();

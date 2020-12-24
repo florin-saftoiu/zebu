@@ -1710,12 +1710,12 @@ impl Z80CPU {
     }
 
     fn jp_nz_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b01000000 != 0b01000000 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1748,12 +1748,12 @@ impl Z80CPU {
     }
     
     fn jp_z_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b01000000 == 0b01000000 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1781,12 +1781,12 @@ impl Z80CPU {
     }
     
     fn jp_nc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b00000001 != 0b00000001 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1801,12 +1801,12 @@ impl Z80CPU {
     }
     
     fn jp_c_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b00000001 == 0b00000001 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1838,12 +1838,13 @@ impl Z80CPU {
     }
 
     fn jp_po_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b00000100 != 0b00000100 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
+            
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1883,12 +1884,13 @@ impl Z80CPU {
     }
     
     fn jp_pe_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b00000100 == 0b00000100 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
+            
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1928,12 +1930,13 @@ impl Z80CPU {
     }
     
     fn jp_p_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b10000000 != 0b10000000 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
+            
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -1979,12 +1982,13 @@ impl Z80CPU {
     }
     
     fn jp_m_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let n_low = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
+        let n_high = bus.read(self.pc);
+        self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
         if self.f & 0b10000000 == 0b10000000 {
-            let n_low = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
-            let n_high = bus.read(self.pc);
-            self.pc = self.pc.wrapping_add(1);
+            
             self.pc = (u16::from(n_high) << 8) + u16::from(n_low);
         }
         0
@@ -4667,7 +4671,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_nz_nn() {
+    fn test_jp_nz_nn_when_z_is_0() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc2);
@@ -4682,6 +4686,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP NZ, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_nz_nn_when_z_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xc2);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP NZ, $BAAD");
     }
@@ -4746,7 +4770,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_z_nn() {
+    fn test_jp_z_nn_when_z_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xca);
@@ -4761,6 +4785,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP Z, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_z_nn_when_z_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xca);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b00000000;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP Z, $BAAD");
     }
@@ -4809,7 +4853,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_nc_nn() {
+    fn test_jp_nc_nn_when_c_is_0() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd2);
@@ -4824,6 +4868,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP NC, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_nc_nn_when_c_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xd2);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP NC, $BAAD");
     }
@@ -4849,7 +4913,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_c_nn() {
+    fn test_jp_c_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xda);
@@ -4864,6 +4928,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP C, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_c_nn_when_c_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xda);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b00000000;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP C, $BAAD");
     }
@@ -4908,7 +4992,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_po_nn() {
+    fn test_jp_po_nn_when_v_is_0() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe2);
@@ -4923,6 +5007,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP PO, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_po_nn_when_v_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xe2);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP PO, $BAAD");
     }
@@ -4970,7 +5074,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_pe_nn() {
+    fn test_jp_pe_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xea);
@@ -4985,6 +5089,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP PE, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_pe_nn_when_v_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xea);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b00000000;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP PE, $BAAD");
     }
@@ -5032,7 +5156,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_p_nn() {
+    fn test_jp_p_nn_when_s_is_0() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf2);
@@ -5047,6 +5171,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP P, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_p_nn_when_s_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xf2);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP P, $BAAD");
     }
@@ -5112,7 +5256,7 @@ mod tests {
     }
     
     #[test]
-    fn test_jp_m_nn() {
+    fn test_jp_m_nn_when_s_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xfa);
@@ -5127,6 +5271,26 @@ mod tests {
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 10);
+        assert_eq!(disasm, "0000: JP M, $BAAD");
+    }
+
+    #[test]
+    fn test_jp_m_nn_when_s_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xfa);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
+        mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b00000000;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x0003);
         assert_eq!(1 + cpu.t_cycles, 10);
         assert_eq!(disasm, "0000: JP M, $BAAD");
     }

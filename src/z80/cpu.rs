@@ -1928,7 +1928,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.b);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.b & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -1963,7 +1963,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.c);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.c & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -1998,7 +1998,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.d);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.d & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2033,7 +2033,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.e);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.e & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2068,7 +2068,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.h);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.h & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2103,7 +2103,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.l);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.l & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2139,7 +2139,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(bus.read(hl));
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.b & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2174,7 +2174,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(self.a);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (self.a & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(self.b & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {
@@ -2647,7 +2647,7 @@ impl Z80CPU {
         let (res, carry) = self.a.overflowing_sub(n);
         let sign = res > 0x7f;
         let zero = res == 0;
-        let half_carry = ((self.a & 0xf) - (n & 0xf)) & 0x10 == 0x10;
+        let half_carry = (self.a & 0xf).wrapping_sub(n & 0xf) & 0x10 == 0x10;
         if sign {
             self.f |= 0b10000000;
         } else {

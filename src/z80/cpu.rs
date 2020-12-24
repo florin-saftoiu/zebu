@@ -1440,7 +1440,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1475,7 +1475,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1510,7 +1510,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1545,7 +1545,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1580,7 +1580,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1615,7 +1615,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1651,7 +1651,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -1686,7 +1686,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {
@@ -2159,7 +2159,7 @@ impl Z80CPU {
         } else {
             self.f &= 0b11101111;
         }
-        let overflow = (self.a > 0) != (res > 0);
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
         if overflow {
             self.f |= 0b00000100;
         } else {

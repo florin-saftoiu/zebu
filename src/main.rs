@@ -188,7 +188,7 @@ fn main() -> io::Result<()> {
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
     
     let mut cpu = Z80CPU::new();
-    let mut rom_file = File::open(assets.join("stack.bin"))?;
+    let mut rom_file = File::open(assets.join("djnz.bin"))?;
     let mut rom = [0; 16 * 1024];
     rom_file.read(&mut rom)?;
     let mut ram = [0; 48 * 1024];

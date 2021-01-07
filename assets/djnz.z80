@@ -1,0 +1,16 @@
+    LD B, 80
+    LD HL, 0
+_L: INC HL
+    NOP
+    NOP
+    DJNZ _L
+    NOP
+    NOP
+    NOP
+    LD B, 10
+_D: DJNZ _F
+    JP _E
+_F: JP _D
+_E: NOP
+    NOP
+    NOP

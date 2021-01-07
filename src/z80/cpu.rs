@@ -14,10 +14,10 @@ const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] 
 /* 90 */ ("SUB B"     , Z80CPU::sub_b         , 0, 4), ("SUB C"     , Z80CPU::sub_c         , 0,  4), ("SUB D"     , Z80CPU::sub_d         , 0,  4), ("SUB E"     , Z80CPU::sub_e         , 0,  4), ("SUB H"     , Z80CPU::sub_h         , 0,  4), ("SUB L"     , Z80CPU::sub_l         , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("SUB A"     , Z80CPU::sub_a         , 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???"     , Z80CPU::invalid_opcode, 0,  4), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* 90 */
 /* a0 */ ("AND B"     , Z80CPU::and_b         , 0, 4), ("AND C"     , Z80CPU::and_c         , 0,  4), ("AND D"     , Z80CPU::and_d         , 0,  4), ("AND E"     , Z80CPU::and_e         , 0,  4), ("AND H"     , Z80CPU::and_h         , 0,  4), ("AND L"     , Z80CPU::and_l         , 0,  4), ("AND (HL)"  , Z80CPU::and_ptr_hl    , 0, 7), ("AND A"     , Z80CPU::and_a         , 0, 4), ("XOR B"     , Z80CPU::xor_b         , 0, 4), ("XOR C"     , Z80CPU::xor_c         , 0,  4), ("XOR D"     , Z80CPU::xor_d         , 0,  4), ("XOR E"  , Z80CPU::xor_e         , 0, 4), ("XOR H"   , Z80CPU::xor_h         , 0,  4), ("XOR L"  , Z80CPU::xor_l         , 0,  4), ("XOR (HL)"  , Z80CPU::xor_ptr_hl    , 0, 7), ("XOR A"  , Z80CPU::xor_a         , 0, 4), /* a0 */
 /* b0 */ ("OR B"      , Z80CPU::or_b          , 0, 4), ("OR C"      , Z80CPU::or_c          , 0,  4), ("OR D"      , Z80CPU::or_d          , 0,  4), ("OR E"      , Z80CPU::or_e          , 0,  4), ("OR H"      , Z80CPU::or_h          , 0,  4), ("OR L"      , Z80CPU::or_l          , 0,  4), ("OR (HL)"   , Z80CPU::or_ptr_hl     , 0, 7), ("OR A"      , Z80CPU::or_a          , 0, 4), ("CP B"      , Z80CPU::cp_b          , 0, 4), ("CP C"      , Z80CPU::cp_c          , 0,  4), ("CP D"      , Z80CPU::cp_d          , 0,  4), ("CP E"   , Z80CPU::cp_e          , 0, 4), ("CP H"    , Z80CPU::cp_h          , 0,  4), ("CP L"   , Z80CPU::cp_l          , 0,  4), ("CP (HL)"   , Z80CPU::cp_ptr_hl     , 0, 7), ("CP A"   , Z80CPU::cp_a          , 0, 4), /* b0 */
-/* c0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP BC"    , Z80CPU::pop_bc        , 0, 10), ("JP NZ,"    , Z80CPU::jp_nz_nn      , 2, 10), ("JP"        , Z80CPU::jp_nn         , 2, 10), ("CALL NZ,"  , Z80CPU::call_nz_nn    , 2, 10), ("PUSH BC"   , Z80CPU::push_bc       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET"       , Z80CPU::ret           , 0, 10), ("JP Z,"     , Z80CPU::jp_z_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL Z," , Z80CPU::call_z_nn     , 2, 10), ("CALL"   , Z80CPU::call_nn       , 2, 17), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* c0 */
-/* d0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP DE"    , Z80CPU::pop_de        , 0, 10), ("JP NC,"    , Z80CPU::jp_nc_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL NC,"  , Z80CPU::call_nc_nn    , 2, 10), ("PUSH DE"   , Z80CPU::push_de       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JP C,"     , Z80CPU::jp_c_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL C," , Z80CPU::call_c_nn     , 2, 10), ("IX"     , Z80CPU::ix            , 0,  0), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* d0 */
-/* e0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP HL"    , Z80CPU::pop_hl        , 0, 10), ("JP PO,"    , Z80CPU::jp_po_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL PO,"  , Z80CPU::call_po_nn    , 2, 10), ("PUSH HL"   , Z80CPU::push_hl       , 0, 11), ("AND"       , Z80CPU::and_n         , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JP PE,"    , Z80CPU::jp_pe_nn      , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL PE,", Z80CPU::call_pe_nn    , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("XOR"       , Z80CPU::xor_n         , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* e0 */
-/* f0 */ ("???"       , Z80CPU::invalid_opcode, 0, 4), ("POP AF"    , Z80CPU::pop_af        , 0, 10), ("JP P,"     , Z80CPU::jp_p_nn       , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL P,"   , Z80CPU::call_p_nn     , 2, 10), ("PUSH AF"   , Z80CPU::push_af       , 0, 11), ("OR"        , Z80CPU::or_n          , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("LD SP, HL" , Z80CPU::ld_sp_hl      , 0,  6), ("JP M,"     , Z80CPU::jp_m_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL M," , Z80CPU::call_m_nn     , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("CP"        , Z80CPU::cp_n          , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4)  /* f0 */
+/* c0 */ ("RET NZ"    , Z80CPU::ret_nz        , 0, 5), ("POP BC"    , Z80CPU::pop_bc        , 0, 10), ("JP NZ,"    , Z80CPU::jp_nz_nn      , 2, 10), ("JP"        , Z80CPU::jp_nn         , 2, 10), ("CALL NZ,"  , Z80CPU::call_nz_nn    , 2, 10), ("PUSH BC"   , Z80CPU::push_bc       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET Z"     , Z80CPU::ret_z         , 0, 5), ("RET"       , Z80CPU::ret           , 0, 10), ("JP Z,"     , Z80CPU::jp_z_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL Z," , Z80CPU::call_z_nn     , 2, 10), ("CALL"   , Z80CPU::call_nn       , 2, 17), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* c0 */
+/* d0 */ ("RET NC"    , Z80CPU::ret_nc        , 0, 5), ("POP DE"    , Z80CPU::pop_de        , 0, 10), ("JP NC,"    , Z80CPU::jp_nc_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL NC,"  , Z80CPU::call_nc_nn    , 2, 10), ("PUSH DE"   , Z80CPU::push_de       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET C"     , Z80CPU::ret_c         , 0, 5), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JP C,"     , Z80CPU::jp_c_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL C," , Z80CPU::call_c_nn     , 2, 10), ("IX"     , Z80CPU::ix            , 0,  0), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* d0 */
+/* e0 */ ("RET PO"    , Z80CPU::ret_po        , 0, 5), ("POP HL"    , Z80CPU::pop_hl        , 0, 10), ("JP PO,"    , Z80CPU::jp_po_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL PO,"  , Z80CPU::call_po_nn    , 2, 10), ("PUSH HL"   , Z80CPU::push_hl       , 0, 11), ("AND"       , Z80CPU::and_n         , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET PE"    , Z80CPU::ret_pe        , 0, 5), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JP PE,"    , Z80CPU::jp_pe_nn      , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL PE,", Z80CPU::call_pe_nn    , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("XOR"       , Z80CPU::xor_n         , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4), /* e0 */
+/* f0 */ ("RET P"     , Z80CPU::ret_p         , 0, 5), ("POP AF"    , Z80CPU::pop_af        , 0, 10), ("JP P,"     , Z80CPU::jp_p_nn       , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("CALL P,"   , Z80CPU::call_p_nn     , 2, 10), ("PUSH AF"   , Z80CPU::push_af       , 0, 11), ("OR"        , Z80CPU::or_n          , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RET M"     , Z80CPU::ret_m         , 0, 5), ("LD SP, HL" , Z80CPU::ld_sp_hl      , 0,  6), ("JP M,"     , Z80CPU::jp_m_nn       , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("CALL M," , Z80CPU::call_m_nn     , 2, 10), ("???"    , Z80CPU::invalid_opcode, 0,  4), ("CP"        , Z80CPU::cp_n          , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0, 4)  /* f0 */
 ];
 
 const IX_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
@@ -2205,6 +2205,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_nz(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b01000000 != 0b01000000 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.c = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -2260,6 +2274,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_z(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b01000000 == 0b01000000 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn ret(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let ret_low = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -2312,6 +2340,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_nc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b00000001 != 0b00000001 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn pop_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.e = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -2358,6 +2400,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_c(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b00000001 == 0b00000001 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn jp_c_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -2405,6 +2461,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_po(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b00000100 != 0b00000100 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn pop_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.l = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -2477,6 +2547,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_pe(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b00000100 == 0b00000100 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn jp_pe_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
@@ -2533,6 +2617,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_p(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b10000000 != 0b10000000 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn pop_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
         self.f = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
@@ -2605,6 +2703,20 @@ impl Z80CPU {
         0
     }
     
+    fn ret_m(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        //            SZ H VNC
+        if self.f & 0b10000000 == 0b10000000 {
+            let ret_low = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            let ret_high = bus.read(self.sp);
+            self.sp = self.sp.wrapping_add(1);
+            self.pc = (u16::from(ret_high) << 8) + u16::from(ret_low);
+            6
+        } else {
+            0
+        }
+    }
+
     fn ld_sp_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.sp = hl;
@@ -5605,6 +5717,52 @@ mod tests {
     }
     
     #[test]
+    fn test_ret_nz_when_z_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b10010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET NZ");
+    }
+
+    #[test]
+    fn test_ret_nz_when_z_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET NZ");
+    }
+
+    #[test]
     fn test_pop_bc() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -5753,6 +5911,52 @@ mod tests {
     }
     
     #[test]
+    fn test_ret_z_when_z_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET Z");
+    }
+
+    #[test]
+    fn test_ret_z_when_z_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b10010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET Z");
+    }
+
+    #[test]
     fn test_ret() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -5887,6 +6091,52 @@ mod tests {
     }
     
     #[test]
+    fn test_ret_nc_when_c_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010110;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET NC");
+    }
+
+    #[test]
+    fn test_ret_nc_when_c_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET NC");
+    }
+
+    #[test]
     fn test_pop_de() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -6017,6 +6267,52 @@ mod tests {
     }
     
     #[test]
+    fn test_ret_c_when_c_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET C");
+    }
+
+    #[test]
+    fn test_ret_c_when_c_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010110;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET C");
+    }
+
+    #[test]
     fn test_jp_c_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -6125,6 +6421,52 @@ mod tests {
         assert_eq!(disasm, "0000: LD IX, $BAAD");
     }
     
+    #[test]
+    fn test_ret_po_when_v_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010011;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET PO");
+    }
+
+    #[test]
+    fn test_ret_po_when_v_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET PO");
+    }
+
     #[test]
     fn test_pop_hl() {
         let mut cpu = Z80CPU::new();
@@ -6278,6 +6620,52 @@ mod tests {
     }
     
     #[test]
+    fn test_ret_pe_when_v_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET PE");
+    }
+
+    #[test]
+    fn test_ret_pe_when_v_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010011;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET PE");
+    }
+
+    #[test]
     fn test_jp_pe_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockReadWrite::new();
@@ -6389,6 +6777,52 @@ mod tests {
         assert_eq!(disasm, "0000: XOR $15");
     }
     
+    #[test]
+    fn test_ret_p_when_s_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b01010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET P");
+    }
+
+    #[test]
+    fn test_ret_p_when_s_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf0);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET P");
+    }
+
     #[test]
     fn test_pop_af() {
         let mut cpu = Z80CPU::new();
@@ -6541,6 +6975,52 @@ mod tests {
         assert_eq!(disasm, "0000: OR $FA");
     }
     
+    #[test]
+    fn test_ret_m_when_s_is_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b11010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0x1237);
+        assert_eq!(cpu.sp, 0x5000);
+        assert_eq!(1 + cpu.t_cycles, 11);
+        assert_eq!(disasm, "BAAD: RET M");
+    }
+
+    #[test]
+    fn test_ret_m_when_s_is_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf8);
+        mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
+        mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
+        
+        cpu.reset();
+        cpu.pc = 0xbaad;
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        //        SZ H VNC
+        cpu.f = 0b01010111;
+        cpu.sp = 0x4ffe;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.pc, 0xbaae);
+        assert_eq!(cpu.sp, 0x4ffe);
+        assert_eq!(1 + cpu.t_cycles, 5);
+        assert_eq!(disasm, "BAAD: RET M");
+    }
+
     #[test]
     fn test_ld_sp_hl() {
         let mut cpu = Z80CPU::new();

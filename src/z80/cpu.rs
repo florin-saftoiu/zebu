@@ -3,7 +3,7 @@ use super::machine::ReadWrite;
 const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
 /*         0                                             1                                              2                                              3                                              4                                              5                                              6                                             7                                              8                                              9                                              a                                              b                                          c                                            d                                           e                                             f                                               */
 /* 00 */ ("NOP"       , Z80CPU::nop           , 0, 4), ("LD BC,"    , Z80CPU::ld_bc_nn      , 2, 10), ("LD (BC), A", Z80CPU::ld_ptr_bc_a   , 0,  7), ("INC BC"    , Z80CPU::inc_bc        , 0,  6), ("INC B"     , Z80CPU::inc_b         , 0,  4), ("DEC B"     , Z80CPU::dec_b         , 0,  4), ("LD B,"     , Z80CPU::ld_b_n        , 1, 7), ("RLCA"      , Z80CPU::rlca          , 0,  4), ("EX AF, AF'", Z80CPU::ex_af_af_alt  , 0,  4), ("ADD HL, BC", Z80CPU::add_hl_bc     , 0, 11), ("LD A, (BC)", Z80CPU::ld_a_ptr_bc   , 0,  7), ("DEC BC" , Z80CPU::dec_bc        , 0, 6), ("INC C"   , Z80CPU::inc_c         , 0,  4), ("DEC C"  , Z80CPU::dec_c         , 0,  4), ("LD C,"     , Z80CPU::ld_c_n        , 1, 7), ("RRCA"   , Z80CPU::rrca          , 0,  4), /* 00 */
-/* 10 */ ("DJNZ $"    , Z80CPU::djnz_e        , 1, 8), ("LD DE,"    , Z80CPU::ld_de_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("INC DE"    , Z80CPU::inc_de        , 0,  6), ("INC D"     , Z80CPU::inc_d         , 0,  4), ("DEC D"     , Z80CPU::dec_d         , 0,  4), ("LD D,"     , Z80CPU::ld_d_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JR $"      , Z80CPU::jr_e          , 1, 12), ("ADD HL, DE", Z80CPU::add_hl_de     , 0, 11), ("LD A, (DE)", Z80CPU::ld_a_ptr_de   , 0,  7), ("DEC DE" , Z80CPU::dec_de        , 0, 6), ("INC E"   , Z80CPU::inc_e         , 0,  4), ("DEC E"  , Z80CPU::dec_e         , 0,  4), ("LD E,"     , Z80CPU::ld_e_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0,  4), /* 10 */
+/* 10 */ ("DJNZ $"    , Z80CPU::djnz_e        , 1, 8), ("LD DE,"    , Z80CPU::ld_de_nn      , 2, 10), ("LD (DE), A", Z80CPU::ld_ptr_de_a   , 0,  7), ("INC DE"    , Z80CPU::inc_de        , 0,  6), ("INC D"     , Z80CPU::inc_d         , 0,  4), ("DEC D"     , Z80CPU::dec_d         , 0,  4), ("LD D,"     , Z80CPU::ld_d_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JR $"      , Z80CPU::jr_e          , 1, 12), ("ADD HL, DE", Z80CPU::add_hl_de     , 0, 11), ("LD A, (DE)", Z80CPU::ld_a_ptr_de   , 0,  7), ("DEC DE" , Z80CPU::dec_de        , 0, 6), ("INC E"   , Z80CPU::inc_e         , 0,  4), ("DEC E"  , Z80CPU::dec_e         , 0,  4), ("LD E,"     , Z80CPU::ld_e_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0,  4), /* 10 */
 /* 20 */ ("JR NZ, $"  , Z80CPU::jr_nz_e       , 1, 7), ("LD HL,"    , Z80CPU::ld_hl_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("INC HL"    , Z80CPU::inc_hl        , 0,  6), ("INC H"     , Z80CPU::inc_h         , 0,  4), ("DEC H"     , Z80CPU::dec_h         , 0,  4), ("LD H,"     , Z80CPU::ld_h_n        , 1, 7), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JR Z, $"   , Z80CPU::jr_z_e        , 1,  7), ("ADD HL, HL", Z80CPU::add_hl_hl     , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("DEC HL" , Z80CPU::dec_hl        , 0, 6), ("INC L"   , Z80CPU::inc_l         , 0,  4), ("DEC L"  , Z80CPU::dec_l         , 0,  4), ("LD L,"     , Z80CPU::ld_l_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0,  4), /* 20 */
 /* 30 */ ("JR NC, $"  , Z80CPU::jr_nc_e       , 1, 7), ("LD SP,"    , Z80CPU::ld_sp_nn      , 2, 10), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("INC SP"    , Z80CPU::inc_sp        , 0,  6), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JR C, $"   , Z80CPU::jr_c_e        , 1,  7), ("ADD HL, SP", Z80CPU::add_hl_sp     , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("DEC SP" , Z80CPU::dec_sp        , 0, 6), ("INC A"   , Z80CPU::inc_a         , 0,  4), ("DEC A"  , Z80CPU::dec_a         , 0,  4), ("LD A,"     , Z80CPU::ld_a_n        , 1, 7), ("???"    , Z80CPU::invalid_opcode, 0,  4), /* 30 */
 /* 40 */ ("LD B, B"   , Z80CPU::ld_b_b        , 0, 4), ("LD B, C"   , Z80CPU::ld_b_c        , 0,  4), ("LD B, D"   , Z80CPU::ld_b_d        , 0,  4), ("LD B, E"   , Z80CPU::ld_b_e        , 0,  4), ("LD B, H"   , Z80CPU::ld_b_h        , 0,  4), ("LD B, L"   , Z80CPU::ld_b_l        , 0,  4), ("LD B, (HL)", Z80CPU::ld_b_ptr_hl   , 0, 7), ("LD B, A"   , Z80CPU::ld_b_a        , 0,  4), ("LD C, B"   , Z80CPU::ld_c_b        , 0,  4), ("LD C, C"   , Z80CPU::ld_c_c        , 0,  4), ("LD C, D"   , Z80CPU::ld_c_d        , 0,  4), ("LD C, E", Z80CPU::ld_c_e        , 0, 4), ("LD C, H" , Z80CPU::ld_c_h        , 0,  4), ("LD C, L", Z80CPU::ld_c_l        , 0,  4), ("LD C, (HL)", Z80CPU::ld_c_ptr_hl   , 0, 7), ("LD C, A", Z80CPU::ld_c_a        , 0,  4), /* 40 */
@@ -314,6 +314,12 @@ impl Z80CPU {
         0
     }
     
+    fn ld_ptr_de_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+        let de = (u16::from(self.d) << 8) + u16::from(self.e);
+        bus.write(de, self.a);
+        0
+    }
+
     fn inc_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
         self.e = self.e.wrapping_add(1);
         if self.e == 0 {
@@ -3345,6 +3351,25 @@ mod tests {
         assert_eq!(disasm, "0000: LD DE, BAADh");
     }
     
+    #[test]
+    fn test_ld_ptr_de_a() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x12);
+        mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.d = 0x40;
+        cpu.e = 0x01;
+        cpu.a = 0x2a;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(1 + cpu.t_cycles, 7);
+        assert_eq!(disasm, "0000: LD (DE), A");
+    }
+
     #[test]
     fn test_inc_de() {
         let mut cpu = Z80CPU::new();

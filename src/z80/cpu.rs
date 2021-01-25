@@ -3126,7 +3126,7 @@ mod tests {
         
         assert_eq!(cpu.a, 0b00010001);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b00010011, 0b00000001);
+        assert_eq!(cpu.f & 0b00000001, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RLCA");
     }
@@ -3284,7 +3284,7 @@ mod tests {
         
         assert_eq!(cpu.a, 0b10001000);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b00010011, 0b00000001);
+        assert_eq!(cpu.f & 0b00000001, 0b00000001);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: RRCA");
     }
@@ -3533,7 +3533,7 @@ mod tests {
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b00010011, 0b00010001);
+        assert_eq!(cpu.f & 0b00010001, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, DE");
     }
@@ -3875,7 +3875,7 @@ mod tests {
         assert_eq!(cpu.h, 0xff);
         assert_eq!(cpu.l, 0xfc);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b00010011, 0b00010001);
+        assert_eq!(cpu.f & 0b00010001, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, HL");
     }
@@ -4143,7 +4143,7 @@ mod tests {
         assert_eq!(cpu.h, 0x12);
         assert_eq!(cpu.l, 0x32);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b00010011, 0b00010001);
+        assert_eq!(cpu.f & 0b00010001, 0b00010001);
         assert_eq!(1 + cpu.t_cycles, 11);
         assert_eq!(disasm, "0000: ADD HL, SP");
     }

@@ -230,7 +230,33 @@ impl Z80CPU {
     }
     
     fn dec_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.b = self.b.wrapping_sub(1);
+        let (res, _) = self.b.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.b & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.b > 0x7f) != (res > 0x7f);
+        self.b = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -329,7 +355,33 @@ impl Z80CPU {
     }
     
     fn dec_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.c = self.c.wrapping_sub(1);
+        let (res, _) = self.c.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.c & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.c > 0x7f) != (res > 0x7f);
+        self.c = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -419,7 +471,33 @@ impl Z80CPU {
     }
     
     fn dec_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.d = self.d.wrapping_sub(1);
+        let (res, _) = self.d.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.d & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.d > 0x7f) != (res > 0x7f);
+        self.d = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -504,7 +582,33 @@ impl Z80CPU {
     }
     
     fn dec_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.e = self.e.wrapping_sub(1);
+        let (res, _) = self.e.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.e & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.e > 0x7f) != (res > 0x7f);
+        self.e = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -588,7 +692,33 @@ impl Z80CPU {
     }
     
     fn dec_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.h = self.h.wrapping_sub(1);
+        let (res, _) = self.h.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.h & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.h > 0x7f) != (res > 0x7f);
+        self.h = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -671,7 +801,33 @@ impl Z80CPU {
     }
     
     fn dec_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.l = self.l.wrapping_sub(1);
+        let (res, _) = self.l.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.l & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.l > 0x7f) != (res > 0x7f);
+        self.l = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -787,7 +943,33 @@ impl Z80CPU {
     }
     
     fn dec_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
-        self.a = self.a.wrapping_sub(1);
+        let (res, _) = self.a.overflowing_sub(1);
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = ((self.a & 0xf) + 1) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        self.f |= 0b00000010;
         0
     }
     
@@ -3272,9 +3454,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.b = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.b, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC B");
     }
@@ -3434,9 +3620,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.c = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.c, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC C");
     }
@@ -3647,9 +3837,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.d = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.d, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC D");
     }
@@ -3801,9 +3995,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.e = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.e, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC E");
     }
@@ -3975,9 +4173,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.h = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.h, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC H");
     }
@@ -4132,9 +4334,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.l = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.l, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC L");
     }
@@ -4402,9 +4608,13 @@ mod tests {
         let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
         cpu.t_cycles = 0;
         cpu.a = 0xfc;
+        //        SZ H VNC
+        cpu.f = 0b01010100;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xfb);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000010, 0b10000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: DEC A");
     }

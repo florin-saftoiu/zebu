@@ -11,7 +11,7 @@ const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] 
 /* 60 */ ("LD H, B"   , Z80CPU::ld_h_b     , 0, 4), ("LD H, C"   , Z80CPU::ld_h_c     , 0,  4), ("LD H, D"    , Z80CPU::ld_h_d      , 0,  4), ("LD H, E"    , Z80CPU::ld_h_e        , 0,  4), ("LD H, H"   , Z80CPU::ld_h_h        , 0,  4), ("LD H, L"   , Z80CPU::ld_h_l        , 0,  4), ("LD H, (HL)", Z80CPU::ld_h_ptr_hl   , 0,  7), ("LD H, A"   , Z80CPU::ld_h_a        , 0,  4), ("LD L, B"   , Z80CPU::ld_l_b        , 0,  4), ("LD L, C"   , Z80CPU::ld_l_c        , 0,  4), ("LD L, D"   , Z80CPU::ld_l_d        , 0,  4), ("LD L, E" , Z80CPU::ld_l_e        , 0, 4), ("LD L, H" , Z80CPU::ld_l_h        , 0,  4), ("LD L, L" , Z80CPU::ld_l_l        , 0,  4), ("LD L, (HL)", Z80CPU::ld_l_ptr_hl   , 0, 7), ("LD L, A" , Z80CPU::ld_l_a        , 0,  4), /* 60 */
 /* 70 */ ("LD (HL), B", Z80CPU::ld_ptr_hl_b, 0, 7), ("LD (HL), C", Z80CPU::ld_ptr_hl_c, 0,  7), ("LD (HL), D" , Z80CPU::ld_ptr_hl_d , 0,  7), ("LD (HL), E" , Z80CPU::ld_ptr_hl_e   , 0,  7), ("LD (HL), H", Z80CPU::ld_ptr_hl_h   , 0,  7), ("LD (HL), L", Z80CPU::ld_ptr_hl_l   , 0,  7), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD (HL), A", Z80CPU::ld_ptr_hl_a   , 0,  7), ("LD A, B"   , Z80CPU::ld_a_b        , 0,  4), ("LD A, C"   , Z80CPU::ld_a_c        , 0,  4), ("LD A, D"   , Z80CPU::ld_a_d        , 0,  4), ("LD A, E" , Z80CPU::ld_a_e        , 0, 4), ("LD A, H" , Z80CPU::ld_a_h        , 0,  4), ("LD A, L" , Z80CPU::ld_a_l        , 0,  4), ("LD A, (HL)", Z80CPU::ld_a_ptr_hl   , 0, 7), ("LD A, A" , Z80CPU::ld_a_a        , 0,  4), /* 70 */
 /* 80 */ ("ADD A, B"  , Z80CPU::add_a_b    , 0, 4), ("ADD A, C"  , Z80CPU::add_a_c    , 0,  4), ("ADD A, D"   , Z80CPU::add_a_d     , 0,  4), ("ADD A, E"   , Z80CPU::add_a_e       , 0,  4), ("ADD A, H"  , Z80CPU::add_a_h       , 0,  4), ("ADD A, L"  , Z80CPU::add_a_l       , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("ADD A, A"  , Z80CPU::add_a_a       , 0,  4), ("ADC A, B"  , Z80CPU::adc_a_b       , 0,  4), ("ADC A, C"  , Z80CPU::adc_a_c       , 0,  4), ("ADC A, D"  , Z80CPU::adc_a_d       , 0,  4), ("ADC A, E", Z80CPU::adc_a_e       , 0, 4), ("ADC A, H", Z80CPU::adc_a_h       , 0,  4), ("ADC A, L", Z80CPU::adc_a_l       , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("ADC A, A", Z80CPU::adc_a_a       , 0,  4), /* 80 */
-/* 90 */ ("SUB B"     , Z80CPU::sub_b      , 0, 4), ("SUB C"     , Z80CPU::sub_c      , 0,  4), ("SUB D"      , Z80CPU::sub_d       , 0,  4), ("SUB E"      , Z80CPU::sub_e         , 0,  4), ("SUB H"     , Z80CPU::sub_h         , 0,  4), ("SUB L"     , Z80CPU::sub_l         , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("SUB A"     , Z80CPU::sub_a         , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"     , Z80CPU::invalid_opcode, 0, 4), ("???"     , Z80CPU::invalid_opcode, 0,  4), ("???"     , Z80CPU::invalid_opcode, 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("???"     , Z80CPU::invalid_opcode, 0,  4), /* 90 */
+/* 90 */ ("SUB B"     , Z80CPU::sub_b      , 0, 4), ("SUB C"     , Z80CPU::sub_c      , 0,  4), ("SUB D"      , Z80CPU::sub_d       , 0,  4), ("SUB E"      , Z80CPU::sub_e         , 0,  4), ("SUB H"     , Z80CPU::sub_h         , 0,  4), ("SUB L"     , Z80CPU::sub_l         , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("SUB A"     , Z80CPU::sub_a         , 0,  4), ("SBC A, B"  , Z80CPU::sbc_a_b       , 0,  4), ("SBC A, C"  , Z80CPU::sbc_a_c       , 0,  4), ("SBC A, D"  , Z80CPU::sbc_a_d       , 0,  4), ("SBC A, E", Z80CPU::sbc_a_e       , 0, 4), ("SBC A, H", Z80CPU::sbc_a_h       , 0,  4), ("SBC A, L", Z80CPU::sbc_a_l       , 0,  4), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("SBC A, A", Z80CPU::sbc_a_a       , 0,  4), /* 90 */
 /* a0 */ ("AND B"     , Z80CPU::and_b      , 0, 4), ("AND C"     , Z80CPU::and_c      , 0,  4), ("AND D"      , Z80CPU::and_d       , 0,  4), ("AND E"      , Z80CPU::and_e         , 0,  4), ("AND H"     , Z80CPU::and_h         , 0,  4), ("AND L"     , Z80CPU::and_l         , 0,  4), ("AND (HL)"  , Z80CPU::and_ptr_hl    , 0,  7), ("AND A"     , Z80CPU::and_a         , 0,  4), ("XOR B"     , Z80CPU::xor_b         , 0,  4), ("XOR C"     , Z80CPU::xor_c         , 0,  4), ("XOR D"     , Z80CPU::xor_d         , 0,  4), ("XOR E"   , Z80CPU::xor_e         , 0, 4), ("XOR H"   , Z80CPU::xor_h         , 0,  4), ("XOR L"   , Z80CPU::xor_l         , 0,  4), ("XOR (HL)"  , Z80CPU::xor_ptr_hl    , 0, 7), ("XOR A"   , Z80CPU::xor_a         , 0,  4), /* a0 */
 /* b0 */ ("OR B"      , Z80CPU::or_b       , 0, 4), ("OR C"      , Z80CPU::or_c       , 0,  4), ("OR D"       , Z80CPU::or_d        , 0,  4), ("OR E"       , Z80CPU::or_e          , 0,  4), ("OR H"      , Z80CPU::or_h          , 0,  4), ("OR L"      , Z80CPU::or_l          , 0,  4), ("OR (HL)"   , Z80CPU::or_ptr_hl     , 0,  7), ("OR A"      , Z80CPU::or_a          , 0,  4), ("CP B"      , Z80CPU::cp_b          , 0,  4), ("CP C"      , Z80CPU::cp_c          , 0,  4), ("CP D"      , Z80CPU::cp_d          , 0,  4), ("CP E"    , Z80CPU::cp_e          , 0, 4), ("CP H"    , Z80CPU::cp_h          , 0,  4), ("CP L"    , Z80CPU::cp_l          , 0,  4), ("CP (HL)"   , Z80CPU::cp_ptr_hl     , 0, 7), ("CP A"    , Z80CPU::cp_a          , 0,  4), /* b0 */
 /* c0 */ ("RET NZ"    , Z80CPU::ret_nz     , 0, 5), ("POP BC"    , Z80CPU::pop_bc     , 0, 10), ("JP NZ,"     , Z80CPU::jp_nz_nn    , 2, 10), ("JP"         , Z80CPU::jp_nn         , 2, 10), ("CALL NZ,"  , Z80CPU::call_nz_nn    , 2, 10), ("PUSH BC"   , Z80CPU::push_bc       , 0, 11), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("RST 00h"   , Z80CPU::rst_00h       , 0, 11), ("RET Z"     , Z80CPU::ret_z         , 0,  5), ("RET"       , Z80CPU::ret           , 0, 10), ("JP Z,"     , Z80CPU::jp_z_nn       , 2, 10), ("???"     , Z80CPU::invalid_opcode, 0, 4), ("CALL Z," , Z80CPU::call_z_nn     , 2, 10), ("CALL"    , Z80CPU::call_nn       , 2, 17), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RST 08h" , Z80CPU::rst_08h       , 0, 11), /* c0 */
@@ -2129,6 +2129,279 @@ impl Z80CPU {
         let sign = res > 0x7f;
         let zero = res == 0;
         let half_carry = (self.a & 0xf).wrapping_sub(self.a & 0xf) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.b);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.b & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.c);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.c & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.d);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.d & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.e);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.e & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.h);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.h & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.l);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.l & 0xf) + carry_in) & 0x10 == 0x10;
+        let overflow = (self.a > 0x7f) != (res > 0x7f);
+        self.a = res;
+        if sign {
+            self.f |= 0b10000000;
+        } else {
+            self.f &= 0b01111111;
+        }
+        if zero {
+            self.f |= 0b01000000;
+        } else {
+            self.f &= 0b10111111;
+        }
+        if half_carry {
+            self.f |= 0b00010000;
+        } else {
+            self.f &= 0b11101111;
+        }
+        if overflow {
+            self.f |= 0b00000100;
+        } else {
+            self.f &= 0b11111011;
+        }
+        if carry {
+            self.f |= 0b00000001;
+        } else {
+            self.f &= 0b11111110;
+        }
+        self.f |= 0b00000010;
+        0
+    }
+
+    fn sbc_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+        let carry_in = self.f & 0b00000001;
+        let (res1, carry1) = self.a.overflowing_sub(self.a);
+        let (res, carry2) = res1.overflowing_sub(carry_in);
+        let carry = carry1 || carry2;
+        let sign = res > 0x7f;
+        let zero = res == 0;
+        let half_carry = (self.a & 0xf).wrapping_sub((self.a & 0xf) + carry_in) & 0x10 == 0x10;
         let overflow = (self.a > 0x7f) != (res > 0x7f);
         self.a = res;
         if sign {
@@ -6602,6 +6875,159 @@ mod tests {
         assert_eq!(cpu.f & 0b01000010, 0b01000010);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: SUB A");
+    }
+
+    #[test]
+    fn test_sbc_a_b() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x98);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.b = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, B");
+    }
+
+    #[test]
+    fn test_sbc_a_c() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x99);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.c = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, C");
+    }
+
+    #[test]
+    fn test_sbc_a_d() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x9a);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.d = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, D");
+    }
+
+    #[test]
+    fn test_sbc_a_e() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x9b);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.e = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, E");
+    }
+
+    #[test]
+    fn test_sbc_a_h() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x9c);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.h = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, H");
+    }
+
+    #[test]
+    fn test_sbc_a_l() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x9d);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        cpu.l = 0x7e;
+        //        SZ H VNC
+        cpu.f = 0b01010101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xe0);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10000011, 0b10000011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, L");
+    }
+
+    #[test]
+    fn test_sbc_a_a() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockReadWrite::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0x9f);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.a = 0x5f;
+        //        SZ H VNC
+        cpu.f = 0b01000101;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.a, 0xff);
+        //                   SZ H VNC
+        assert_eq!(cpu.f & 0b10010011, 0b10010011);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: SBC A, A");
     }
 
     #[test]

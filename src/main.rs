@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), windows_subsystem = "windows")]
+
 use std::io;
 use std::io::prelude::*;
 use std::fmt::Write;

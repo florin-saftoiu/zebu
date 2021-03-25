@@ -122,13 +122,13 @@ impl Z80CPU {
                     } else if nb_ix_operands == 1 {
                         let n = bus.read(pc);
                         pc = pc.wrapping_add(1);
-                        instructions.push(format!("{:04X}: {} {:X}h", pc.wrapping_sub(3), IX_OPCODES[usize::from(ix_opcode)].0, n));
+                        instructions.push(format!("{:04X}: {} {:02X}h", pc.wrapping_sub(3), IX_OPCODES[usize::from(ix_opcode)].0, n));
                     } else if nb_ix_operands == 2 {
                         let n_low = bus.read(pc);
                         pc = pc.wrapping_add(1);
                         let n_high = bus.read(pc);
                         pc = pc.wrapping_add(1);
-                        instructions.push(format!("{:04X}: {} {:X}h", pc.wrapping_sub(4), IX_OPCODES[usize::from(ix_opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
+                        instructions.push(format!("{:04X}: {} {:04X}h", pc.wrapping_sub(4), IX_OPCODES[usize::from(ix_opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
                     }
                 } else {
                     instructions.push(format!("{:04X}: {}", pc.wrapping_sub(1), OPCODES[usize::from(opcode)].0));
@@ -140,10 +140,10 @@ impl Z80CPU {
                     0x10 | 0x18 | 0x20 | 0x28 | 0x30 | 0x38 => instructions.push(format!("{:04X}: {}{:+}", pc.wrapping_sub(2), OPCODES[usize::from(opcode)].0, (n + 2) as i8)),
                     0xd3 => {
                         let pass1 = format!("{:04X}: {}", pc.wrapping_sub(2), OPCODES[usize::from(opcode)].0);
-                        let n = format!("{:X}h", n);
+                        let n = format!("{:02X}h", n);
                         instructions.push(pass1.replace("n", &n))
                     },
-                    _ => instructions.push(format!("{:04X}: {} {:X}h", pc.wrapping_sub(2), OPCODES[usize::from(opcode)].0, n))
+                    _ => instructions.push(format!("{:04X}: {} {:02X}h", pc.wrapping_sub(2), OPCODES[usize::from(opcode)].0, n))
                 }
             } else if nb_operands == 2 {
                 let n_low = bus.read(pc);
@@ -153,10 +153,10 @@ impl Z80CPU {
                 match opcode {
                     0x22 | 0x2a | 0x32 => {
                         let pass1 = format!("{:04X}: {}", pc.wrapping_sub(3), OPCODES[usize::from(opcode)].0);
-                        let nn = format!("{:X}h", (u16::from(n_high) << 8) + u16::from(n_low));
+                        let nn = format!("{:04X}h", (u16::from(n_high) << 8) + u16::from(n_low));
                         instructions.push(pass1.replace("nn", &nn))
                     },
-                    _ => instructions.push(format!("{:04X}: {} {:X}h", pc.wrapping_sub(3), OPCODES[usize::from(opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)))
+                    _ => instructions.push(format!("{:04X}: {} {:04X}h", pc.wrapping_sub(3), OPCODES[usize::from(opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)))
                 }
             }
         }
@@ -8323,7 +8323,7 @@ mod tests {
         
         assert_eq!(cpu.pc, 0x0002);
         assert_eq!(1 + cpu.t_cycles, 11);
-        assert_eq!(disasm, "0000: OUT (1h), A");
+        assert_eq!(disasm, "0000: OUT (01h), A");
     }
 
     #[test]

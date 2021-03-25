@@ -2516,6 +2516,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2540,6 +2541,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2564,6 +2566,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2588,6 +2591,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2612,6 +2616,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2636,6 +2641,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2661,6 +2667,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -2685,6 +2692,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -3769,6 +3777,7 @@ impl Z80CPU {
             self.f &= 0b11111011;
         }
         self.f &= 0b11101100;
+        self.f |= 0b00010000;
         0
     }
     
@@ -7271,12 +7280,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.b = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND B");
     }
@@ -7293,12 +7302,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.c = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND C");
     }
@@ -7315,12 +7324,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.d = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND D");
     }
@@ -7337,11 +7346,11 @@ mod tests {
         cpu.a = 0xc3;
         cpu.e = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND E");
     }
@@ -7358,12 +7367,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.h = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND H");
     }
@@ -7380,12 +7389,12 @@ mod tests {
         cpu.a = 0xc3;
         cpu.l = 0xf5;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND L");
     }
@@ -7404,12 +7413,12 @@ mod tests {
         cpu.h = 0x40;
         cpu.l = 0x01;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: AND (HL)");
     }
@@ -7425,12 +7434,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         //        SZ H VNC
-        cpu.f = 0b01010011;
+        cpu.f = 0b01000011;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc3);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000100, 0b10000100);
+        assert_eq!(cpu.f & 0b10010100, 0b10010100);
         assert_eq!(1 + cpu.t_cycles, 4);
         assert_eq!(disasm, "0000: AND A");
     }
@@ -9018,12 +9027,12 @@ mod tests {
         cpu.t_cycles = 0;
         cpu.a = 0xc3;
         //        SZ H VNC
-        cpu.f = 0b01010111;
+        cpu.f = 0b01000111;
         cpu.clock(&mut mock_bus);
         
         assert_eq!(cpu.a, 0xc1);
         //                   SZ H VNC
-        assert_eq!(cpu.f & 0b10000000, 0b10000000);
+        assert_eq!(cpu.f & 0b10010000, 0b10010000);
         assert_eq!(1 + cpu.t_cycles, 7);
         assert_eq!(disasm, "0000: AND F5h");
     }

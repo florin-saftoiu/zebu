@@ -41,23 +41,23 @@ const IX_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
 ];
 
 const EXTENDED_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
-/*         0                                      1                                      2                                              3                                               4                                      5                                       6                                      7                                          8                                        9                                      a                                      b                                      c                                      d                                      e                                      f                                          */
-/* 00 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 00 */
-/* 10 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 10 */
-/* 20 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 20 */
-/* 30 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 30 */
-/* 40 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD (nn), BC", Z80CPU::ld_ptr_nn_bc  , 2, 20), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("LD I, A", Z80CPU::ld_i_a        , 0, 9), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 40 */
-/* 50 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("SBC HL, DE", Z80CPU::sbc_hl_de     , 0, 15), ("LD (nn), DE", Z80CPU::ld_ptr_nn_de  , 2, 20), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 50 */
-/* 60 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 60 */
-/* 70 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 70 */
-/* 80 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 80 */
-/* 90 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 90 */
-/* a0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* a0 */
-/* b0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LDDR", Z80CPU::lddr          , 0, 16), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* b0 */
-/* c0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* c0 */
-/* d0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* d0 */
-/* e0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* e0 */
-/* f0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4)  /* f0 */
+/*         0                                      1                                      2                                              3                                               4                                      5                                       6                                       7                                          8                                        9                                      a                                      b                                      c                                      d                                      e                                       f                                          */
+/* 00 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 00 */
+/* 10 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 10 */
+/* 20 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 20 */
+/* 30 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 30 */
+/* 40 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("LD (nn), BC", Z80CPU::ld_ptr_nn_bc  , 2, 20), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("IM 0", Z80CPU::im_0          , 0, 8), ("LD I, A", Z80CPU::ld_i_a        , 0, 9), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 40 */
+/* 50 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("SBC HL, DE", Z80CPU::sbc_hl_de     , 0, 15), ("LD (nn), DE", Z80CPU::ld_ptr_nn_de  , 2, 20), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("IM 1", Z80CPU::im_1          , 0, 8), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("IM 2", Z80CPU::im_2,           0, 8), ("???", Z80CPU::invalid_opcode, 0, 4), /* 50 */
+/* 60 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 60 */
+/* 70 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 70 */
+/* 80 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 80 */
+/* 90 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 90 */
+/* a0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* a0 */
+/* b0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("LDDR", Z80CPU::lddr          , 0, 16), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* b0 */
+/* c0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* c0 */
+/* d0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* d0 */
+/* e0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* e0 */
+/* f0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4)  /* f0 */
 ];
 
 pub struct Z80CPU {
@@ -3869,8 +3869,23 @@ impl Z80CPU {
         0
     }
 
+    fn im_0(&mut self, _bus: &mut dyn Bus) -> u8 {
+        self.interrupt_mode = 0;
+        0
+    }
+
     fn ld_i_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.i = self.a;
+        0
+    }
+
+    fn im_1(&mut self, _bus: &mut dyn Bus) -> u8 {
+        self.interrupt_mode = 1;
+        0
+    }
+
+    fn im_2(&mut self, _bus: &mut dyn Bus) -> u8 {
+        self.interrupt_mode = 2;
         0
     }
 
@@ -9248,6 +9263,25 @@ mod tests {
     }
 
     #[test]
+    fn test_im_0() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockBus::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x46);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.interrupt_mode = 1;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.interrupt_mode, 0);
+        assert_eq!(cpu.pc, 2);
+        assert_eq!(1 + cpu.t_cycles, 8);
+        assert_eq!(disasm, "0000: IM 0");
+    }
+
+    #[test]
     fn test_ld_i_a() {
         let mut cpu = Z80CPU::new();
         let mut mock_bus = MockBus::new();
@@ -9291,6 +9325,44 @@ mod tests {
         assert_eq!(cpu.pc, 2);
         assert_eq!(1 + cpu.t_cycles, 15);
         assert_eq!(disasm, "0000: SBC HL, DE");
+    }
+
+    #[test]
+    fn test_im_1() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockBus::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x56);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.interrupt_mode = 2;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.interrupt_mode, 1);
+        assert_eq!(cpu.pc, 2);
+        assert_eq!(1 + cpu.t_cycles, 8);
+        assert_eq!(disasm, "0000: IM 1");
+    }
+
+    #[test]
+    fn test_im_2() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockBus::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
+        mock_bus.expect_read().with(eq(1)).returning(|_| 0x5e);
+        
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.interrupt_mode = 1;
+        cpu.clock(&mut mock_bus);
+        
+        assert_eq!(cpu.interrupt_mode, 2);
+        assert_eq!(cpu.pc, 2);
+        assert_eq!(1 + cpu.t_cycles, 8);
+        assert_eq!(disasm, "0000: IM 2");
     }
 
     #[test]

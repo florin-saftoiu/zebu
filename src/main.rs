@@ -20,6 +20,7 @@ const BACKGROUND: [f32; 4] = [0.0, 0.478, 0.8, 1.0];
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
+const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 
 fn print_cpu_state(state: Z80CPUState) {
     println!("   AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
@@ -140,10 +141,10 @@ fn draw_ram_slice_state(ram_slice: &[u8], offset: u16, c: Context, g: &mut G2d, 
     }
 }
 
-fn draw_next_cpu_instructions(instructions: Vec<String>, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+fn draw_next_cpu_instructions(instructions: Vec<String>, c: Context, g: &mut G2d, glyphs: &mut Glyphs, pointer_offset: usize) {
     let mut y = WINDOW_PADDING + WINDOW_FONTSIZE;
     for i in 0..instructions.len() {
-        text::Text::new_color(if i == 0 { YELLOW } else { WHITE }, WINDOW_FONTSIZE as u32).draw(
+        text::Text::new_color(if i == pointer_offset { RED } else { match i { 0 => YELLOW, _ => WHITE } }, WINDOW_FONTSIZE as u32).draw(
             &instructions[i],
             glyphs,
             &c.draw_state,
@@ -190,7 +191,7 @@ fn main() -> io::Result<()> {
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
     
     let mut cpu = Z80CPU::new();
-    let mut rom_file = File::open(assets.join("djnz.bin"))?;
+    let mut rom_file = File::open(assets.join("zxs48.bin"))?;
     let mut rom = [0; 16 * 1024];
     rom_file.read(&mut rom)?;
     let mut ram = [0; 48 * 1024];
@@ -206,6 +207,7 @@ fn main() -> io::Result<()> {
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
     
     let mut paused = true;
+    let mut pointer_offset = 0usize;
     while let Some(e) = window.next() {
         if paused {
             if let Some(Button::Keyboard(key)) = e.press_args() {
@@ -227,6 +229,32 @@ fn main() -> io::Result<()> {
                     print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
                     print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                     print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                } else if key == Key::B {
+                    match u16::from_str_radix(&(machine.get_next_cpu_instructions(pointer_offset + 1)[pointer_offset])[0..4], 16) {
+                        Ok(breakpoint) => {
+                            loop {
+                                machine.clock();
+                                if machine.get_cpu_state().pc >= breakpoint && machine.cpu_instruction_complete() {
+                                    break;
+                                }
+                            }
+                            pointer_offset = 0;
+                            println!("    T: {}", machine.get_t_cycles());
+                            print_cpu_state(machine.get_cpu_state());
+                            print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                            print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                            print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                        },
+                        Err(e) => panic!(e)
+                    }
+                } else if key == Key::Up {
+                    if pointer_offset > 0 {
+                        pointer_offset -= 1;
+                    }
+                } else if key == Key::Down {
+                    if pointer_offset < 23 {
+                        pointer_offset += 1;
+                    }
                 } else if key == Key::F5 {
                     paused = false;
                 }
@@ -265,7 +293,7 @@ fn main() -> io::Result<()> {
                 c.transform, g);
                 draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
                 draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
-                draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs);
+                draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs, pointer_offset);
                 draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
                 
                 glyphs.factory.encoder.flush(device);

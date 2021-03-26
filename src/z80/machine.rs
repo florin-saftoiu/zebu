@@ -11,12 +11,12 @@ struct Z80Bus<'a> {
 }
 
 #[cfg_attr(test, automock)]
-pub trait ReadWrite {
+pub trait Bus {
     fn read(&self, addr: u16) -> u8;
     fn write(&mut self, addr: u16, data: u8);
 }
 
-impl<'a> ReadWrite for Z80Bus<'a> {
+impl<'a> Bus for Z80Bus<'a> {
     fn read(&self, addr: u16) -> u8 {
         if addr < 0x4000 {
             self.rom[usize::from(addr)]

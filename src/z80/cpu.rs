@@ -1,6 +1,6 @@
-use super::machine::ReadWrite;
+use super::machine::Bus;
 
-const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
+const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
 /*         0                                          1                                           2                                             3                                               4                                              5                                              6                                              7                                              8                                              9                                              a                                               b                                            c                                            d                                            e                                             f                                                */
 /* 00 */ ("NOP"       , Z80CPU::nop        , 0, 4), ("LD BC,"    , Z80CPU::ld_bc_nn   , 2, 10), ("LD (BC), A" , Z80CPU::ld_ptr_bc_a , 0,  7), ("INC BC"     , Z80CPU::inc_bc        , 0,  6), ("INC B"     , Z80CPU::inc_b         , 0,  4), ("DEC B"     , Z80CPU::dec_b         , 0,  4), ("LD B,"     , Z80CPU::ld_b_n        , 1,  7), ("RLCA"      , Z80CPU::rlca          , 0,  4), ("EX AF, AF'", Z80CPU::ex_af_af_alt  , 0,  4), ("ADD HL, BC", Z80CPU::add_hl_bc     , 0, 11), ("LD A, (BC)" , Z80CPU::ld_a_ptr_bc   , 0,  7), ("DEC BC"   , Z80CPU::dec_bc        , 0, 6), ("INC C"   , Z80CPU::inc_c         , 0,  4), ("DEC C"   , Z80CPU::dec_c         , 0,  4), ("LD C,"     , Z80CPU::ld_c_n        , 1, 7), ("RRCA"    , Z80CPU::rrca          , 0,  4), /* 00 */
 /* 10 */ ("DJNZ $"    , Z80CPU::djnz_e     , 1, 8), ("LD DE,"    , Z80CPU::ld_de_nn   , 2, 10), ("LD (DE), A" , Z80CPU::ld_ptr_de_a , 0,  7), ("INC DE"     , Z80CPU::inc_de        , 0,  6), ("INC D"     , Z80CPU::inc_d         , 0,  4), ("DEC D"     , Z80CPU::dec_d         , 0,  4), ("LD D,"     , Z80CPU::ld_d_n        , 1,  7), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JR $"      , Z80CPU::jr_e          , 1, 12), ("ADD HL, DE", Z80CPU::add_hl_de     , 0, 11), ("LD A, (DE)" , Z80CPU::ld_a_ptr_de   , 0,  7), ("DEC DE"   , Z80CPU::dec_de        , 0, 6), ("INC E"   , Z80CPU::inc_e         , 0,  4), ("DEC E"   , Z80CPU::dec_e         , 0,  4), ("LD E,"     , Z80CPU::ld_e_n        , 1, 7), ("???"     , Z80CPU::invalid_opcode, 0,  4), /* 10 */
@@ -20,7 +20,7 @@ const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] 
 /* f0 */ ("RET P"     , Z80CPU::ret_p      , 0, 5), ("POP AF"    , Z80CPU::pop_af     , 0, 10), ("JP P,"      , Z80CPU::jp_p_nn     , 2, 10), ("DI"         , Z80CPU::di            , 0,  4), ("CALL P,"   , Z80CPU::call_p_nn     , 2, 10), ("PUSH AF"   , Z80CPU::push_af       , 0, 11), ("OR"        , Z80CPU::or_n          , 1,  7), ("RST 30h"   , Z80CPU::rst_30h       , 0, 11), ("RET M"     , Z80CPU::ret_m         , 0,  5), ("LD SP, HL" , Z80CPU::ld_sp_hl      , 0,  6), ("JP M,"      , Z80CPU::jp_m_nn       , 2, 10), ("EI"       , Z80CPU::ei            , 0, 4), ("CALL M," , Z80CPU::call_m_nn     , 2, 10), ("???"     , Z80CPU::invalid_opcode, 0,  4), ("CP"        , Z80CPU::cp_n          , 1, 7), ("RST 38h" , Z80CPU::rst_38h       , 0, 11)  /* f0 */
 ];
 
-const IX_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
+const IX_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
 /*         0                                      1                                          2                                      3                                      4                                      5                                       6                                      7                                      8                                      9                                      a                                      b                                      c                                      d                                      e                                      f                                          */
 /* 00 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???"   , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 00 */
 /* 10 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???"   , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 10 */
@@ -40,7 +40,7 @@ const IX_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 25
 /* f0 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???"   , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4)  /* f0 */
 ];
 
-const EXTENDED_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn ReadWrite) -> u8, u8, u8); 256] = [
+const EXTENDED_OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
 /*         0                                      1                                      2                                              3                                               4                                      5                                       6                                      7                                          8                                        9                                      a                                      b                                      c                                      d                                      e                                      f                                          */
 /* 00 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 00 */
 /* 10 */ ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???"    , Z80CPU::invalid_opcode, 0, 4), ("???" , Z80CPU::invalid_opcode, 0,  4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), ("???", Z80CPU::invalid_opcode, 0, 4), /* 10 */
@@ -103,7 +103,7 @@ impl Z80CPU {
         }
     }
     
-    pub fn clock(&mut self, bus: &mut dyn ReadWrite) {
+    pub fn clock(&mut self, bus: &mut dyn Bus) {
         if self.t_cycles == 0 {
             let opcode = bus.read(self.pc);
             self.pc = self.pc.wrapping_add(1);
@@ -125,7 +125,7 @@ impl Z80CPU {
         self.t_cycles == 0
     }
     
-    pub fn get_next_instructions(&self, bus: &dyn ReadWrite, nb: usize) -> Vec<String> {
+    pub fn get_next_instructions(&self, bus: &dyn Bus, nb: usize) -> Vec<String> {
         let mut instructions = vec![];
         let mut pc = self.pc;
         while instructions.len() < nb {
@@ -221,11 +221,11 @@ impl Z80CPU {
         }
     }
     
-    fn nop(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn nop(&mut self, _bus: &mut dyn Bus) -> u8 {
         0
     }
     
-    fn ld_bc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_bc_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.c = n_low;
@@ -235,13 +235,13 @@ impl Z80CPU {
         0
     }
     
-    fn ld_ptr_bc_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_bc_a(&mut self, bus: &mut dyn Bus) -> u8 {
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
         bus.write(bc, self.a);
         0
     }
     
-    fn inc_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_bc(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.c.wrapping_add(1);
         if self.c == 0 {
             self.b = self.b.wrapping_add(1);
@@ -249,7 +249,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.b.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -280,7 +280,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.b.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -311,14 +311,14 @@ impl Z80CPU {
         0
     }
     
-    fn ld_b_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.b = n;
         0
     }
     
-    fn rlca(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn rlca(&mut self, _bus: &mut dyn Bus) -> u8 {
         if self.a & 0b10000000 == 0b10000000 {
             self.f |= 0b00000001;
         } else {
@@ -329,7 +329,7 @@ impl Z80CPU {
         0
     }
     
-    fn ex_af_af_alt(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ex_af_af_alt(&mut self, _bus: &mut dyn Bus) -> u8 {
         let temp_a = self.a;
         self.a = self.a_alt;
         self.a_alt = temp_a;
@@ -339,7 +339,7 @@ impl Z80CPU {
         0
     }
     
-    fn add_hl_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_hl_bc(&mut self, _bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
         let (sum, carry) = hl.overflowing_add(bc);
@@ -360,13 +360,13 @@ impl Z80CPU {
         0
     }
     
-    fn ld_a_ptr_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_ptr_bc(&mut self, bus: &mut dyn Bus) -> u8 {
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
         self.a = bus.read(bc);
         0
     }
     
-    fn dec_bc(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_bc(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.c.wrapping_sub(1);
         if self.c == 0xff {
             self.b = self.b.wrapping_sub(1);
@@ -374,7 +374,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.c.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -405,7 +405,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.c.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -436,14 +436,14 @@ impl Z80CPU {
         0
     }
     
-    fn ld_c_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.c = n;
         0
     }
     
-    fn rrca(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn rrca(&mut self, _bus: &mut dyn Bus) -> u8 {
         if self.a & 0b00000001 == 0b00000001 {
             self.f |= 0b00000001;
         } else {
@@ -454,7 +454,7 @@ impl Z80CPU {
         0
     }
     
-    fn djnz_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn djnz_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         self.b = self.b.wrapping_sub(1);
@@ -466,7 +466,7 @@ impl Z80CPU {
         }
     }
 
-    fn ld_de_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_de_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.e = n_low;
@@ -476,13 +476,13 @@ impl Z80CPU {
         0
     }
     
-    fn ld_ptr_de_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_de_a(&mut self, bus: &mut dyn Bus) -> u8 {
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
         bus.write(de, self.a);
         0
     }
 
-    fn inc_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_de(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.e.wrapping_add(1);
         if self.e == 0 {
             self.d = self.d.wrapping_add(1);
@@ -490,7 +490,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.d.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -521,7 +521,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.d.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -552,21 +552,21 @@ impl Z80CPU {
         0
     }
     
-    fn ld_d_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.d = n;
         0
     }
     
-    fn jr_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jr_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         self.pc = self.pc.wrapping_add(e_minus_2 as u16);
         0
     }
 
-    fn add_hl_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_hl_de(&mut self, _bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
         let (sum, carry) = hl.overflowing_add(de);
@@ -587,13 +587,13 @@ impl Z80CPU {
         0
     }
     
-    fn ld_a_ptr_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_ptr_de(&mut self, bus: &mut dyn Bus) -> u8 {
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
         self.a = bus.read(de);
         0
     }
     
-    fn dec_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_de(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.e.wrapping_sub(1);
         if self.e == 0xff {
             self.d = self.d.wrapping_sub(1);
@@ -601,7 +601,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.e.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -632,7 +632,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.e.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -663,14 +663,14 @@ impl Z80CPU {
         0
     }
     
-    fn ld_e_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.e = n;
         0
     }
     
-    fn jr_nz_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jr_nz_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
@@ -682,7 +682,7 @@ impl Z80CPU {
         }
     }
 
-    fn ld_hl_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_hl_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.l = n_low;
@@ -692,7 +692,7 @@ impl Z80CPU {
         0
     }
     
-    fn ld_ptr_nn_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_nn_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -703,7 +703,7 @@ impl Z80CPU {
         0
     }
 
-    fn inc_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.l.wrapping_add(1);
         if self.l == 0 {
             self.h = self.h.wrapping_add(1);
@@ -711,7 +711,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.h.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -742,7 +742,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.h.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -773,14 +773,14 @@ impl Z80CPU {
         0
     }
     
-    fn ld_h_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.h = n;
         0
     }
     
-    fn jr_z_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jr_z_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
@@ -792,7 +792,7 @@ impl Z80CPU {
         }
     }
 
-    fn add_hl_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_hl_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let (sum, carry) = hl.overflowing_add(hl);
         let half_carry = ((hl & 0xfff) + (hl & 0xfff)) & 0x1000 == 0x1000;
@@ -812,7 +812,7 @@ impl Z80CPU {
         0
     }
     
-    fn ld_hl_ptr_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_hl_ptr_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -823,7 +823,7 @@ impl Z80CPU {
         0
     }
 
-    fn dec_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.l.wrapping_sub(1);
         if self.l == 0xff {
             self.h = self.h.wrapping_sub(1);
@@ -831,7 +831,7 @@ impl Z80CPU {
         0
     }
     
-    fn inc_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.l.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -862,7 +862,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.l.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -893,14 +893,14 @@ impl Z80CPU {
         0
     }
     
-    fn ld_l_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.l = n;
         0
     }
     
-    fn jr_nc_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jr_nc_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
@@ -912,7 +912,7 @@ impl Z80CPU {
         }
     }
 
-    fn ld_sp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_sp_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -921,7 +921,7 @@ impl Z80CPU {
         0
     }
     
-    fn ld_ptr_nn_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_nn_a(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -931,12 +931,12 @@ impl Z80CPU {
         0
     }
 
-    fn inc_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_sp(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_add(1);
         0
     }
     
-    fn inc_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let temp_ptr_hl = bus.read(hl);
         let (res, _) = temp_ptr_hl.overflowing_add(1);
@@ -969,7 +969,7 @@ impl Z80CPU {
         0
     }
 
-    fn dec_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let temp_ptr_hl = bus.read(hl);
         let (res, _) = temp_ptr_hl.overflowing_sub(1);
@@ -1002,7 +1002,7 @@ impl Z80CPU {
         0
     }
 
-    fn ld_ptr_hl_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
@@ -1010,7 +1010,7 @@ impl Z80CPU {
         0
     }
 
-    fn jr_c_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jr_c_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let e_minus_2 = bus.read(self.pc) as i8;
         self.pc = self.pc.wrapping_add(1);
         //            SZ H VNC
@@ -1022,7 +1022,7 @@ impl Z80CPU {
         }
     }
 
-    fn add_hl_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_hl_sp(&mut self, _bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let (sum, carry) = hl.overflowing_add(self.sp);
         let half_carry = ((hl & 0xfff) + (self.sp & 0xfff)) & 0x1000 == 0x1000;
@@ -1042,12 +1042,12 @@ impl Z80CPU {
         0
     }
     
-    fn dec_sp(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_sp(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         0
     }
     
-    fn inc_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn inc_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.a.overflowing_add(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1078,7 +1078,7 @@ impl Z80CPU {
         0
     }
     
-    fn dec_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn dec_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, _) = self.a.overflowing_sub(1);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1109,343 +1109,343 @@ impl Z80CPU {
         0
     }
     
-    fn ld_a_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         self.a = n;
         0
     }
     
-    fn ld_b_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.b;
         0
     }
     
-    fn ld_b_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.c;
         0
     }
     
-    fn ld_b_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.d;
         0
     }
     
-    fn ld_b_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.e;
         0
     }
     
-    fn ld_b_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.h;
         0
     }
     
-    fn ld_b_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.l;
         0
     }
     
-    fn ld_b_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.b = bus.read(hl);
         0
     }
     
-    fn ld_b_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_b_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.b = self.a;
         0
     }
     
-    fn ld_c_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.b;
         0
     }
     
-    fn ld_c_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.c;
         0
     }
     
-    fn ld_c_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.d;
         0
     }
     
-    fn ld_c_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.e;
         0
     }
     
-    fn ld_c_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.h;
         0
     }
     
-    fn ld_c_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.l;
         0
     }
     
-    fn ld_c_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.c = bus.read(hl);
         0
     }
     
-    fn ld_c_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_c_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.c = self.a;
         0
     }
     
-    fn ld_d_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.b;
         0
     }
     
-    fn ld_d_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.c;
         0
     }
     
-    fn ld_d_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.d;
         0
     }
     
-    fn ld_d_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.e;
         0
     }
     
-    fn ld_d_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.h;
         0
     }
     
-    fn ld_d_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.l;
         0
     }
     
-    fn ld_d_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.d = bus.read(hl);
         0
     }
     
-    fn ld_d_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_d_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.d = self.a;
         0
     }
     
-    fn ld_e_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.b;
         0
     }
     
-    fn ld_e_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.c;
         0
     }
     
-    fn ld_e_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.d;
         0
     }
     
-    fn ld_e_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.e;
         0
     }
     
-    fn ld_e_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.h;
         0
     }
     
-    fn ld_e_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.l;
         0
     }
     
-    fn ld_e_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.e = bus.read(hl);
         0
     }
     
-    fn ld_e_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_e_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.e = self.a;
         0
     }
     
-    fn ld_h_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.b;
         0
     }
     
-    fn ld_h_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.c;
         0
     }
     
-    fn ld_h_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.d;
         0
     }
     
-    fn ld_h_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.e;
         0
     }
     
-    fn ld_h_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.h;
         0
     }
     
-    fn ld_h_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.l;
         0
     }
     
-    fn ld_h_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.h = bus.read(hl);
         0
     }
     
-    fn ld_h_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_h_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.h = self.a;
         0
     }
     
-    fn ld_l_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.b;
         0
     }
     
-    fn ld_l_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.c;
         0
     }
     
-    fn ld_l_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.d;
         0
     }
     
-    fn ld_l_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.e;
         0
     }
     
-    fn ld_l_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.h;
         0
     }
     
-    fn ld_l_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.l;
         0
     }
     
-    fn ld_l_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.l = bus.read(hl);
         0
     }
     
-    fn ld_l_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_l_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.l = self.a;
         0
     }
     
-    fn ld_ptr_hl_b(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_b(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.b);
         0
     }
     
-    fn ld_ptr_hl_c(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_c(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.c);
         0
     }
     
-    fn ld_ptr_hl_d(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_d(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.d);
         0
     }
     
-    fn ld_ptr_hl_e(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_e(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.e);
         0
     }
     
-    fn ld_ptr_hl_h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_h(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.h);
         0
     }
     
-    fn ld_ptr_hl_l(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_l(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.l);
         0
     }
     
-    fn ld_ptr_hl_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_hl_a(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         bus.write(hl, self.a);
         0
     }
     
-    fn ld_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.b;
         0
     }
     
-    fn ld_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.c;
         0
     }
     
-    fn ld_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.d;
         0
     }
     
-    fn ld_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.e;
         0
     }
     
-    fn ld_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.h;
         0
     }
     
-    fn ld_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.l;
         0
     }
     
-    fn ld_a_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = bus.read(hl);
         0
     }
     
-    fn ld_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_a_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a;
         0
     }
     
-    fn add_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.b);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1481,7 +1481,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.c);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1517,7 +1517,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.d);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1553,7 +1553,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.e);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1589,7 +1589,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.h);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1625,7 +1625,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.l);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1661,7 +1661,7 @@ impl Z80CPU {
         0
     }
 
-    fn add_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn add_a_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_add(self.a);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -1697,7 +1697,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.b);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1736,7 +1736,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.c);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1775,7 +1775,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.d);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1814,7 +1814,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.e);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1853,7 +1853,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.h);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1892,7 +1892,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.l);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1931,7 +1931,7 @@ impl Z80CPU {
         0
     }
 
-    fn adc_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn adc_a_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_add(self.a);
         let (res, carry2) = res1.overflowing_add(carry_in);
@@ -1970,7 +1970,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.b);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2006,7 +2006,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.c);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2042,7 +2042,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.d);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2078,7 +2078,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.e);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2114,7 +2114,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.h);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2150,7 +2150,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.l);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2186,7 +2186,7 @@ impl Z80CPU {
         0
     }
 
-    fn sub_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sub_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.a);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -2222,7 +2222,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.b);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2261,7 +2261,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.c);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2300,7 +2300,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.d);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2339,7 +2339,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.e);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2378,7 +2378,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.h);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2417,7 +2417,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.l);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2456,7 +2456,7 @@ impl Z80CPU {
         0
     }
 
-    fn sbc_a_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_a_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = self.f & 0b00000001;
         let (res1, carry1) = self.a.overflowing_sub(self.a);
         let (res, carry2) = res1.overflowing_sub(carry_in);
@@ -2495,7 +2495,7 @@ impl Z80CPU {
         0
     }
 
-    fn and_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.b;
         let sign = self.a > 0x7f;
         if sign {
@@ -2520,7 +2520,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.c;
         let sign = self.a > 0x7f;
         if sign {
@@ -2545,7 +2545,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.d;
         let sign = self.a > 0x7f;
         if sign {
@@ -2570,7 +2570,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.e;
         let sign = self.a > 0x7f;
         if sign {
@@ -2595,7 +2595,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.h;
         let sign = self.a > 0x7f;
         if sign {
@@ -2620,7 +2620,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.l;
         let sign = self.a > 0x7f;
         if sign {
@@ -2645,7 +2645,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn and_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = self.a & bus.read(hl);
         let sign = self.a > 0x7f;
@@ -2671,7 +2671,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn and_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a & self.a;
         let sign = self.a > 0x7f;
         if sign {
@@ -2696,7 +2696,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.b;
         let sign = self.a > 0x7f;
         if sign {
@@ -2720,7 +2720,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.c;
         let sign = self.a > 0x7f;
         if sign {
@@ -2744,7 +2744,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.d;
         let sign = self.a > 0x7f;
         if sign {
@@ -2768,7 +2768,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.e;
         let sign = self.a > 0x7f;
         if sign {
@@ -2792,7 +2792,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.h;
         let sign = self.a > 0x7f;
         if sign {
@@ -2816,7 +2816,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.l;
         let sign = self.a > 0x7f;
         if sign {
@@ -2840,7 +2840,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = self.a ^ bus.read(hl);
         let sign = self.a > 0x7f;
@@ -2865,7 +2865,7 @@ impl Z80CPU {
         0
     }
     
-    fn xor_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a ^ self.a;
         let sign = self.a > 0x7f;
         if sign {
@@ -2889,7 +2889,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.b;
         let sign = self.a > 0x7f;
         if sign {
@@ -2913,7 +2913,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.c;
         let sign = self.a > 0x7f;
         if sign {
@@ -2937,7 +2937,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.d;
         let sign = self.a > 0x7f;
         if sign {
@@ -2961,7 +2961,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.e;
         let sign = self.a > 0x7f;
         if sign {
@@ -2985,7 +2985,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.h;
         let sign = self.a > 0x7f;
         if sign {
@@ -3009,7 +3009,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.l;
         let sign = self.a > 0x7f;
         if sign {
@@ -3033,7 +3033,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn or_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.a = self.a | bus.read(hl);
         let sign = self.a > 0x7f;
@@ -3058,7 +3058,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn or_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.a = self.a | self.a;
         let sign = self.a > 0x7f;
         if sign {
@@ -3082,7 +3082,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_b(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_b(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.b);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3117,7 +3117,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_c(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_c(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.c);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3152,7 +3152,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_d(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_d(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.d);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3187,7 +3187,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_e(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_e(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.e);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3222,7 +3222,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_h(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_h(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.h);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3257,7 +3257,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_l(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_l(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.l);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3292,7 +3292,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_ptr_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_ptr_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let (res, carry) = self.a.overflowing_sub(bus.read(hl));
         let sign = res > 0x7f;
@@ -3328,7 +3328,7 @@ impl Z80CPU {
         0
     }
     
-    fn cp_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         let (res, carry) = self.a.overflowing_sub(self.a);
         let sign = res > 0x7f;
         let zero = res == 0;
@@ -3363,7 +3363,7 @@ impl Z80CPU {
         0
     }
     
-    fn ret_nz(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_nz(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b01000000 != 0b01000000 {
             let ret_low = bus.read(self.sp);
@@ -3377,7 +3377,7 @@ impl Z80CPU {
         }
     }
 
-    fn pop_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn pop_bc(&mut self, bus: &mut dyn Bus) -> u8 {
         self.c = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
         self.b = bus.read(self.sp);
@@ -3385,7 +3385,7 @@ impl Z80CPU {
         0
     }
 
-    fn jp_nz_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_nz_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3397,7 +3397,7 @@ impl Z80CPU {
         0
     }
 
-    fn jp_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3406,7 +3406,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_nz_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_nz_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3424,7 +3424,7 @@ impl Z80CPU {
         }
     }
     
-    fn push_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn push_bc(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.b);
         self.sp = self.sp.wrapping_sub(1);
@@ -3432,7 +3432,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_00h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_00h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3441,7 +3441,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_z(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_z(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b01000000 == 0b01000000 {
             let ret_low = bus.read(self.sp);
@@ -3455,7 +3455,7 @@ impl Z80CPU {
         }
     }
 
-    fn ret(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret(&mut self, bus: &mut dyn Bus) -> u8 {
         let ret_low = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
         let ret_high = bus.read(self.sp);
@@ -3464,7 +3464,7 @@ impl Z80CPU {
         0
     }
     
-    fn jp_z_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_z_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3476,7 +3476,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_z_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_z_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3494,7 +3494,7 @@ impl Z80CPU {
         }
     }
 
-    fn call_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3507,7 +3507,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_08h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_08h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3516,7 +3516,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_nc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_nc(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b00000001 != 0b00000001 {
             let ret_low = bus.read(self.sp);
@@ -3530,7 +3530,7 @@ impl Z80CPU {
         }
     }
 
-    fn pop_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn pop_de(&mut self, bus: &mut dyn Bus) -> u8 {
         self.e = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
         self.d = bus.read(self.sp);
@@ -3538,7 +3538,7 @@ impl Z80CPU {
         0
     }
     
-    fn jp_nc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_nc_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3550,7 +3550,7 @@ impl Z80CPU {
         0
     }
 
-    fn out_ptr_n_a(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn out_ptr_n_a(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let addr = (u16::from(self.a) << 8) + u16::from(n);
@@ -3558,7 +3558,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_nc_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_nc_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3576,7 +3576,7 @@ impl Z80CPU {
         }
     }
 
-    fn push_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn push_de(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.d);
         self.sp = self.sp.wrapping_sub(1);
@@ -3584,7 +3584,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_10h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_10h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3593,7 +3593,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_c(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_c(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b00000001 == 0b00000001 {
             let ret_low = bus.read(self.sp);
@@ -3607,7 +3607,7 @@ impl Z80CPU {
         }
     }
 
-    fn exx(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn exx(&mut self, _bus: &mut dyn Bus) -> u8 {
         let temp_b = self.b;
         self.b = self.b_alt;
         self.b_alt = temp_b;
@@ -3629,7 +3629,7 @@ impl Z80CPU {
         0
     }
 
-    fn jp_c_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_c_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3641,7 +3641,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_c_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_c_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3659,7 +3659,7 @@ impl Z80CPU {
         }
     }
 
-    fn ix(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ix(&mut self, bus: &mut dyn Bus) -> u8 {
         let ix_opcode = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let mut t_cycles = IX_OPCODES[usize::from(ix_opcode)].3;
@@ -3667,7 +3667,7 @@ impl Z80CPU {
         t_cycles
     }
     
-    fn ld_ix_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ix_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3676,7 +3676,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_18h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_18h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3685,7 +3685,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_po(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_po(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b00000100 != 0b00000100 {
             let ret_low = bus.read(self.sp);
@@ -3699,7 +3699,7 @@ impl Z80CPU {
         }
     }
 
-    fn pop_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn pop_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         self.l = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
         self.h = bus.read(self.sp);
@@ -3707,7 +3707,7 @@ impl Z80CPU {
         0
     }
 
-    fn jp_po_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_po_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3719,7 +3719,7 @@ impl Z80CPU {
         0
     }
     
-    fn ex_ptr_sp_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ex_ptr_sp_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         let temp_ptr_sp_low = bus.read(self.sp);
         let temp_ptr_sp_high = bus.read(self.sp.wrapping_add(1));
         bus.write(self.sp, self.l);
@@ -3729,7 +3729,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_po_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_po_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3747,7 +3747,7 @@ impl Z80CPU {
         }
     }
 
-    fn push_hl(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn push_hl(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.h);
         self.sp = self.sp.wrapping_sub(1);
@@ -3755,7 +3755,7 @@ impl Z80CPU {
         0
     }
     
-    fn and_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn and_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.a = self.a & n;
         let sign = self.a > 0x7f;
@@ -3781,7 +3781,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_20h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_20h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3790,7 +3790,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_pe(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_pe(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b00000100 == 0b00000100 {
             let ret_low = bus.read(self.sp);
@@ -3804,7 +3804,7 @@ impl Z80CPU {
         }
     }
 
-    fn jp_pe_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_pe_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3816,7 +3816,7 @@ impl Z80CPU {
         0
     }
 
-    fn ex_de_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ex_de_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
         let temp_d = self.d;
         self.d = self.h;
         self.h = temp_d;
@@ -3826,7 +3826,7 @@ impl Z80CPU {
         0
     }
 
-    fn call_pe_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_pe_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3844,7 +3844,7 @@ impl Z80CPU {
         }
     }
 
-    fn extended(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn extended(&mut self, bus: &mut dyn Bus) -> u8 {
         let extended_opcode = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let mut t_cycles = EXTENDED_OPCODES[usize::from(extended_opcode)].3;
@@ -3852,7 +3852,7 @@ impl Z80CPU {
         t_cycles
     }
 
-    fn ld_ptr_nn_bc(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_nn_bc(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3863,12 +3863,12 @@ impl Z80CPU {
         0
     }
 
-    fn ld_i_a(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_i_a(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.i = self.a;
         0
     }
 
-    fn sbc_hl_de(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn sbc_hl_de(&mut self, _bus: &mut dyn Bus) -> u8 {
         let carry_in = u16::from(self.f & 0b00000001);
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
@@ -3910,7 +3910,7 @@ impl Z80CPU {
         0
     }
     
-    fn ld_ptr_nn_de(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_ptr_nn_de(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -3921,7 +3921,7 @@ impl Z80CPU {
         0
     }
 
-    fn lddr(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn lddr(&mut self, bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         let de = (u16::from(self.d) << 8) + u16::from(self.e);
         let bc = (u16::from(self.b) << 8) + u16::from(self.c);
@@ -3940,7 +3940,7 @@ impl Z80CPU {
         }
     }
 
-    fn xor_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn xor_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.a = self.a ^ n;
         let sign = self.a > 0x7f;
@@ -3965,7 +3965,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_28h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_28h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -3974,7 +3974,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_p(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_p(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b10000000 != 0b10000000 {
             let ret_low = bus.read(self.sp);
@@ -3988,7 +3988,7 @@ impl Z80CPU {
         }
     }
 
-    fn pop_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn pop_af(&mut self, bus: &mut dyn Bus) -> u8 {
         self.f = bus.read(self.sp);
         self.sp = self.sp.wrapping_add(1);
         self.a = bus.read(self.sp);
@@ -3996,7 +3996,7 @@ impl Z80CPU {
         0
     }
     
-    fn jp_p_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_p_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -4009,12 +4009,12 @@ impl Z80CPU {
         0
     }
 
-    fn di(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn di(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.interrupts_enabled = false;
         0
     }
 
-    fn call_p_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_p_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -4032,7 +4032,7 @@ impl Z80CPU {
         }
     }
 
-    fn push_af(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn push_af(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.a);
         self.sp = self.sp.wrapping_sub(1);
@@ -4040,7 +4040,7 @@ impl Z80CPU {
         0
     }
     
-    fn or_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn or_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         self.a = self.a | n;
         let sign = self.a > 0x7f;
@@ -4065,7 +4065,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_30h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_30h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -4074,7 +4074,7 @@ impl Z80CPU {
         0
     }
 
-    fn ret_m(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn ret_m(&mut self, bus: &mut dyn Bus) -> u8 {
         //            SZ H VNC
         if self.f & 0b10000000 == 0b10000000 {
             let ret_low = bus.read(self.sp);
@@ -4088,13 +4088,13 @@ impl Z80CPU {
         }
     }
 
-    fn ld_sp_hl(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ld_sp_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
         let hl = (u16::from(self.h) << 8) + u16::from(self.l);
         self.sp = hl;
         0
     }
     
-    fn jp_m_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn jp_m_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -4107,12 +4107,12 @@ impl Z80CPU {
         0
     }
 
-    fn ei(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn ei(&mut self, _bus: &mut dyn Bus) -> u8 {
         self.interrupts_enabled = true;
         0
     }
 
-    fn call_m_nn(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn call_m_nn(&mut self, bus: &mut dyn Bus) -> u8 {
         let n_low = bus.read(self.pc);
         self.pc = self.pc.wrapping_add(1);
         let n_high = bus.read(self.pc);
@@ -4130,7 +4130,7 @@ impl Z80CPU {
         }
     }
 
-    fn cp_n(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn cp_n(&mut self, bus: &mut dyn Bus) -> u8 {
         let n = bus.read(self.pc);
         let (res, carry) = self.a.overflowing_sub(n);
         let sign = res > 0x7f;
@@ -4166,7 +4166,7 @@ impl Z80CPU {
         0
     }
     
-    fn rst_38h(&mut self, bus: &mut dyn ReadWrite) -> u8 {
+    fn rst_38h(&mut self, bus: &mut dyn Bus) -> u8 {
         self.sp = self.sp.wrapping_sub(1);
         bus.write(self.sp, self.pc.to_be_bytes()[0]);
         self.sp = self.sp.wrapping_sub(1);
@@ -4175,7 +4175,7 @@ impl Z80CPU {
         0
     }
 
-    fn invalid_opcode(&mut self, _bus: &mut dyn ReadWrite) -> u8 {
+    fn invalid_opcode(&mut self, _bus: &mut dyn Bus) -> u8 {
         0
     }
 }
@@ -4185,12 +4185,12 @@ mod tests {
     use mockall::predicate::*;
     
     use super::*;
-    use super::super::machine::MockReadWrite;
+    use super::super::machine::MockBus;
     
     #[test]
     fn test_nop() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x00);
         
         cpu.reset();
@@ -4205,7 +4205,7 @@ mod tests {
     #[test]
     fn test_ld_bc_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x01);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -4224,7 +4224,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_bc_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x02);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -4243,7 +4243,7 @@ mod tests {
     #[test]
     fn test_inc_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x03);
         
         cpu.reset();
@@ -4262,7 +4262,7 @@ mod tests {
     #[test]
     fn test_inc_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x04);
         
         cpu.reset();
@@ -4283,7 +4283,7 @@ mod tests {
     #[test]
     fn test_dec_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x05);
         
         cpu.reset();
@@ -4304,7 +4304,7 @@ mod tests {
     #[test]
     fn test_ld_b_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x06);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -4321,7 +4321,7 @@ mod tests {
     #[test]
     fn test_rlca() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x07);
         
         cpu.reset();
@@ -4342,7 +4342,7 @@ mod tests {
     #[test]
     fn test_ex_af_af_alt() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x08);
         
         cpu.reset();
@@ -4365,7 +4365,7 @@ mod tests {
     #[test]
     fn test_add_hl_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x09);
         
         cpu.reset();
@@ -4390,7 +4390,7 @@ mod tests {
     #[test]
     fn test_ld_a_ptr_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0a);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -4409,7 +4409,7 @@ mod tests {
     #[test]
     fn test_dec_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0b);
         
         cpu.reset();
@@ -4428,7 +4428,7 @@ mod tests {
     #[test]
     fn test_inc_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0c);
         
         cpu.reset();
@@ -4449,7 +4449,7 @@ mod tests {
     #[test]
     fn test_dec_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0d);
         
         cpu.reset();
@@ -4470,7 +4470,7 @@ mod tests {
     #[test]
     fn test_ld_c_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -4487,7 +4487,7 @@ mod tests {
     #[test]
     fn test_rrca() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x0f);
         
         cpu.reset();
@@ -4508,7 +4508,7 @@ mod tests {
     #[test]
     fn test_djnz_e_when_e_is_positive_and_b_is_not_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x10);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
         
@@ -4528,7 +4528,7 @@ mod tests {
     #[test]
     fn test_djnz_e_when_e_is_positive_and_b_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x10);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
         
@@ -4548,7 +4548,7 @@ mod tests {
     #[test]
     fn test_djnz_e_when_e_is_negative_and_b_is_not_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x10);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
         
@@ -4568,7 +4568,7 @@ mod tests {
     #[test]
     fn test_djnz_e_when_e_is_negative_and_b_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x10);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
         
@@ -4588,7 +4588,7 @@ mod tests {
     #[test]
     fn test_ld_de_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x11);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -4607,7 +4607,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_de_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x12);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -4626,7 +4626,7 @@ mod tests {
     #[test]
     fn test_inc_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x13);
         
         cpu.reset();
@@ -4645,7 +4645,7 @@ mod tests {
     #[test]
     fn test_inc_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x14);
         
         cpu.reset();
@@ -4666,7 +4666,7 @@ mod tests {
     #[test]
     fn test_dec_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x15);
         
         cpu.reset();
@@ -4687,7 +4687,7 @@ mod tests {
     #[test]
     fn test_ld_d_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x16);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -4704,7 +4704,7 @@ mod tests {
     #[test]
     fn test_jr_e_when_e_is_positive() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x18);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
         
@@ -4722,7 +4722,7 @@ mod tests {
     #[test]
     fn test_jr_e_when_e_is_negative() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x18);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
         
@@ -4740,7 +4740,7 @@ mod tests {
     #[test]
     fn test_add_hl_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x19);
         
         cpu.reset();
@@ -4765,7 +4765,7 @@ mod tests {
     #[test]
     fn test_ld_a_ptr_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1a);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -4784,7 +4784,7 @@ mod tests {
     #[test]
     fn test_dec_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1b);
         
         cpu.reset();
@@ -4803,7 +4803,7 @@ mod tests {
     #[test]
     fn test_inc_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1c);
         
         cpu.reset();
@@ -4824,7 +4824,7 @@ mod tests {
     #[test]
     fn test_dec_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1d);
         
         cpu.reset();
@@ -4845,7 +4845,7 @@ mod tests {
     #[test]
     fn test_ld_e_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x1e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -4862,7 +4862,7 @@ mod tests {
     #[test]
     fn test_jr_nz_e_when_z_is_0_and_e_is_positive() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x20);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -4882,7 +4882,7 @@ mod tests {
     #[test]
     fn test_jr_nz_e_when_z_is_0_and_e_is_negative() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x20);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
 
@@ -4902,7 +4902,7 @@ mod tests {
     #[test]
     fn test_jr_nz_e_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x20);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -4922,7 +4922,7 @@ mod tests {
     #[test]
     fn test_ld_hl_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x21);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x01);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x40);
@@ -4941,7 +4941,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_nn_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x22);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x29);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xb2);
@@ -4962,7 +4962,7 @@ mod tests {
     #[test]
     fn test_inc_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x23);
         
         cpu.reset();
@@ -4981,7 +4981,7 @@ mod tests {
     #[test]
     fn test_inc_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x24);
         
         cpu.reset();
@@ -5002,7 +5002,7 @@ mod tests {
     #[test]
     fn test_dec_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x25);
         
         cpu.reset();
@@ -5023,7 +5023,7 @@ mod tests {
     #[test]
     fn test_ld_h_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x26);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -5040,7 +5040,7 @@ mod tests {
     #[test]
     fn test_jr_z_e_when_z_is_1_and_e_is_positive() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x28);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5060,7 +5060,7 @@ mod tests {
     #[test]
     fn test_jr_z_e_when_z_is_1_and_e_is_negative() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x28);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
 
@@ -5080,7 +5080,7 @@ mod tests {
     #[test]
     fn test_jr_z_e_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x28);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5100,7 +5100,7 @@ mod tests {
     #[test]
     fn test_add_hl_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x29);
         
         cpu.reset();
@@ -5123,7 +5123,7 @@ mod tests {
     #[test]
     fn test_ld_hl_ptr_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2a);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x01);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x40);
@@ -5145,7 +5145,7 @@ mod tests {
     #[test]
     fn test_dec_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2b);
         
         cpu.reset();
@@ -5164,7 +5164,7 @@ mod tests {
     #[test]
     fn test_inc_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2c);
         
         cpu.reset();
@@ -5185,7 +5185,7 @@ mod tests {
     #[test]
     fn test_dec_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2d);
         
         cpu.reset();
@@ -5206,7 +5206,7 @@ mod tests {
     #[test]
     fn test_ld_l_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x2e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xd9);
         
@@ -5223,7 +5223,7 @@ mod tests {
     #[test]
     fn test_jr_nc_e_when_c_is_0_and_e_is_positive() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x30);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5243,7 +5243,7 @@ mod tests {
     #[test]
     fn test_jr_nc_e_when_c_is_0_and_e_is_negative() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x30);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
 
@@ -5263,7 +5263,7 @@ mod tests {
     #[test]
     fn test_jr_nc_e_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x30);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5283,7 +5283,7 @@ mod tests {
     #[test]
     fn test_ld_sp_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x31);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -5301,7 +5301,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_nn_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x32);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x41);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x31);
@@ -5320,7 +5320,7 @@ mod tests {
     #[test]
     fn test_inc_sp() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x33);
         
         cpu.reset();
@@ -5337,7 +5337,7 @@ mod tests {
     #[test]
     fn test_inc_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x34);
         mock_bus.expect_read().with(eq(0x3434)).returning(|_| 0x82);
         mock_bus.expect_write().with(eq(0x3434), eq(0x83)).return_const(());
@@ -5360,7 +5360,7 @@ mod tests {
     #[test]
     fn test_dec_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x35);
         mock_bus.expect_read().with(eq(0x3434)).returning(|_| 0x83);
         mock_bus.expect_write().with(eq(0x3434), eq(0x82)).return_const(());
@@ -5383,7 +5383,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x36);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x28);
         mock_bus.expect_write().with(eq(0x4444), eq(0x28)).return_const(());
@@ -5402,7 +5402,7 @@ mod tests {
     #[test]
     fn test_jr_c_e_when_c_is_1_and_e_is_positive() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x38);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5422,7 +5422,7 @@ mod tests {
     #[test]
     fn test_jr_c_e_when_c_is_1_and_e_is_negative() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x38);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xf9);
 
@@ -5442,7 +5442,7 @@ mod tests {
     #[test]
     fn test_jr_c_e_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0x38);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0x03);
 
@@ -5462,7 +5462,7 @@ mod tests {
     #[test]
     fn test_add_hl_sp() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x39);
         
         cpu.reset();
@@ -5486,7 +5486,7 @@ mod tests {
     #[test]
     fn test_dec_sp() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3b);
         
         cpu.reset();
@@ -5503,7 +5503,7 @@ mod tests {
     #[test]
     fn test_inc_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3c);
         
         cpu.reset();
@@ -5524,7 +5524,7 @@ mod tests {
     #[test]
     fn test_dec_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3d);
         
         cpu.reset();
@@ -5545,7 +5545,7 @@ mod tests {
     #[test]
     fn test_ld_a_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x3e);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x2a);
         
@@ -5562,7 +5562,7 @@ mod tests {
     #[test]
     fn test_ld_b_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x40);
         
         cpu.reset();
@@ -5579,7 +5579,7 @@ mod tests {
     #[test]
     fn test_ld_b_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x41);
         
         cpu.reset();
@@ -5596,7 +5596,7 @@ mod tests {
     #[test]
     fn test_ld_b_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x42);
         
         cpu.reset();
@@ -5613,7 +5613,7 @@ mod tests {
     #[test]
     fn test_ld_b_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x43);
         
         cpu.reset();
@@ -5630,7 +5630,7 @@ mod tests {
     #[test]
     fn test_ld_b_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x44);
         
         cpu.reset();
@@ -5647,7 +5647,7 @@ mod tests {
     #[test]
     fn test_ld_b_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x45);
         
         cpu.reset();
@@ -5664,7 +5664,7 @@ mod tests {
     #[test]
     fn test_ld_b_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x46);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -5683,7 +5683,7 @@ mod tests {
     #[test]
     fn test_ld_b_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x47);
         
         cpu.reset();
@@ -5700,7 +5700,7 @@ mod tests {
     #[test]
     fn test_ld_c_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x48);
         
         cpu.reset();
@@ -5717,7 +5717,7 @@ mod tests {
     #[test]
     fn test_ld_c_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x49);
         
         cpu.reset();
@@ -5734,7 +5734,7 @@ mod tests {
     #[test]
     fn test_ld_c_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4a);
         
         cpu.reset();
@@ -5751,7 +5751,7 @@ mod tests {
     #[test]
     fn test_ld_c_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4b);
         
         cpu.reset();
@@ -5768,7 +5768,7 @@ mod tests {
     #[test]
     fn test_ld_c_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4c);
         
         cpu.reset();
@@ -5785,7 +5785,7 @@ mod tests {
     #[test]
     fn test_ld_c_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4d);
         
         cpu.reset();
@@ -5802,7 +5802,7 @@ mod tests {
     #[test]
     fn test_ld_c_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -5821,7 +5821,7 @@ mod tests {
     #[test]
     fn test_ld_c_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x4f);
         
         cpu.reset();
@@ -5838,7 +5838,7 @@ mod tests {
     #[test]
     fn test_ld_d_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x50);
         
         cpu.reset();
@@ -5855,7 +5855,7 @@ mod tests {
     #[test]
     fn test_ld_d_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x51);
         
         cpu.reset();
@@ -5872,7 +5872,7 @@ mod tests {
     #[test]
     fn test_ld_d_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x52);
         
         cpu.reset();
@@ -5889,7 +5889,7 @@ mod tests {
     #[test]
     fn test_ld_d_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x53);
         
         cpu.reset();
@@ -5906,7 +5906,7 @@ mod tests {
     #[test]
     fn test_ld_d_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x54);
         
         cpu.reset();
@@ -5923,7 +5923,7 @@ mod tests {
     #[test]
     fn test_ld_d_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x55);
         
         cpu.reset();
@@ -5940,7 +5940,7 @@ mod tests {
     #[test]
     fn test_ld_d_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x56);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -5959,7 +5959,7 @@ mod tests {
     #[test]
     fn test_ld_d_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x57);
         
         cpu.reset();
@@ -5976,7 +5976,7 @@ mod tests {
     #[test]
     fn test_ld_e_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x58);
         
         cpu.reset();
@@ -5993,7 +5993,7 @@ mod tests {
     #[test]
     fn test_ld_e_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x59);
         
         cpu.reset();
@@ -6010,7 +6010,7 @@ mod tests {
     #[test]
     fn test_ld_e_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5a);
         
         cpu.reset();
@@ -6027,7 +6027,7 @@ mod tests {
     #[test]
     fn test_ld_e_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5b);
         
         cpu.reset();
@@ -6044,7 +6044,7 @@ mod tests {
     #[test]
     fn test_ld_e_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5c);
         
         cpu.reset();
@@ -6061,7 +6061,7 @@ mod tests {
     #[test]
     fn test_ld_e_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5d);
         
         cpu.reset();
@@ -6078,7 +6078,7 @@ mod tests {
     #[test]
     fn test_ld_e_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -6097,7 +6097,7 @@ mod tests {
     #[test]
     fn test_ld_e_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x5f);
         
         cpu.reset();
@@ -6114,7 +6114,7 @@ mod tests {
     #[test]
     fn test_ld_h_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x60);
         
         cpu.reset();
@@ -6131,7 +6131,7 @@ mod tests {
     #[test]
     fn test_ld_h_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x61);
         
         cpu.reset();
@@ -6148,7 +6148,7 @@ mod tests {
     #[test]
     fn test_ld_h_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x62);
         
         cpu.reset();
@@ -6165,7 +6165,7 @@ mod tests {
     #[test]
     fn test_ld_h_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x63);
         
         cpu.reset();
@@ -6182,7 +6182,7 @@ mod tests {
     #[test]
     fn test_ld_h_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x64);
         
         cpu.reset();
@@ -6199,7 +6199,7 @@ mod tests {
     #[test]
     fn test_ld_h_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x65);
         
         cpu.reset();
@@ -6216,7 +6216,7 @@ mod tests {
     #[test]
     fn test_ld_h_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x66);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -6235,7 +6235,7 @@ mod tests {
     #[test]
     fn test_ld_h_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x67);
         
         cpu.reset();
@@ -6252,7 +6252,7 @@ mod tests {
     #[test]
     fn test_ld_l_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x68);
         
         cpu.reset();
@@ -6269,7 +6269,7 @@ mod tests {
     #[test]
     fn test_ld_l_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x69);
         
         cpu.reset();
@@ -6286,7 +6286,7 @@ mod tests {
     #[test]
     fn test_ld_l_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6a);
         
         cpu.reset();
@@ -6303,7 +6303,7 @@ mod tests {
     #[test]
     fn test_ld_l_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6b);
         
         cpu.reset();
@@ -6320,7 +6320,7 @@ mod tests {
     #[test]
     fn test_ld_l_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6c);
         
         cpu.reset();
@@ -6337,7 +6337,7 @@ mod tests {
     #[test]
     fn test_ld_l_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6d);
         
         cpu.reset();
@@ -6354,7 +6354,7 @@ mod tests {
     #[test]
     fn test_ld_l_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -6373,7 +6373,7 @@ mod tests {
     #[test]
     fn test_ld_l_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x6f);
         
         cpu.reset();
@@ -6390,7 +6390,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x70);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -6409,7 +6409,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x71);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -6428,7 +6428,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x72);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -6447,7 +6447,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x73);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -6466,7 +6466,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x74);
         mock_bus.expect_write().with(eq(0x4001), eq(0x40)).return_const(());
         
@@ -6484,7 +6484,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x75);
         mock_bus.expect_write().with(eq(0x4001), eq(0x01)).return_const(());
         
@@ -6502,7 +6502,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_hl_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x77);
         mock_bus.expect_write().with(eq(0x4001), eq(0x2a)).return_const(());
         
@@ -6521,7 +6521,7 @@ mod tests {
     #[test]
     fn test_ld_a_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x78);
         
         cpu.reset();
@@ -6538,7 +6538,7 @@ mod tests {
     #[test]
     fn test_ld_a_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x79);
         
         cpu.reset();
@@ -6555,7 +6555,7 @@ mod tests {
     #[test]
     fn test_ld_a_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7a);
         
         cpu.reset();
@@ -6572,7 +6572,7 @@ mod tests {
     #[test]
     fn test_ld_a_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7b);
         
         cpu.reset();
@@ -6589,7 +6589,7 @@ mod tests {
     #[test]
     fn test_ld_a_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7c);
         
         cpu.reset();
@@ -6606,7 +6606,7 @@ mod tests {
     #[test]
     fn test_ld_a_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7d);
         
         cpu.reset();
@@ -6623,7 +6623,7 @@ mod tests {
     #[test]
     fn test_ld_a_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7e);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x2a);
         
@@ -6642,7 +6642,7 @@ mod tests {
     #[test]
     fn test_ld_a_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x7f);
         
         cpu.reset();
@@ -6659,7 +6659,7 @@ mod tests {
     #[test]
     fn test_add_a_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x80);
         
         cpu.reset();
@@ -6681,7 +6681,7 @@ mod tests {
     #[test]
     fn test_add_a_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x81);
         
         cpu.reset();
@@ -6703,7 +6703,7 @@ mod tests {
     #[test]
     fn test_add_a_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x82);
         
         cpu.reset();
@@ -6725,7 +6725,7 @@ mod tests {
     #[test]
     fn test_add_a_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x83);
         
         cpu.reset();
@@ -6747,7 +6747,7 @@ mod tests {
     #[test]
     fn test_add_a_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x84);
         
         cpu.reset();
@@ -6769,7 +6769,7 @@ mod tests {
     #[test]
     fn test_add_a_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x85);
         
         cpu.reset();
@@ -6791,7 +6791,7 @@ mod tests {
     #[test]
     fn test_add_a_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x87);
         
         cpu.reset();
@@ -6812,7 +6812,7 @@ mod tests {
     #[test]
     fn test_adc_a_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x88);
         
         cpu.reset();
@@ -6834,7 +6834,7 @@ mod tests {
     #[test]
     fn test_adc_a_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x89);
         
         cpu.reset();
@@ -6856,7 +6856,7 @@ mod tests {
     #[test]
     fn test_adc_a_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x8a);
         
         cpu.reset();
@@ -6878,7 +6878,7 @@ mod tests {
     #[test]
     fn test_adc_a_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x8b);
         
         cpu.reset();
@@ -6900,7 +6900,7 @@ mod tests {
     #[test]
     fn test_adc_a_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x8c);
         
         cpu.reset();
@@ -6922,7 +6922,7 @@ mod tests {
     #[test]
     fn test_adc_a_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x8d);
         
         cpu.reset();
@@ -6944,7 +6944,7 @@ mod tests {
     #[test]
     fn test_adc_a_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x8f);
         
         cpu.reset();
@@ -6965,7 +6965,7 @@ mod tests {
     #[test]
     fn test_sub_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x90);
         
         cpu.reset();
@@ -6987,7 +6987,7 @@ mod tests {
     #[test]
     fn test_sub_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x91);
         
         cpu.reset();
@@ -7009,7 +7009,7 @@ mod tests {
     #[test]
     fn test_sub_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x92);
         
         cpu.reset();
@@ -7031,7 +7031,7 @@ mod tests {
     #[test]
     fn test_sub_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x93);
         
         cpu.reset();
@@ -7053,7 +7053,7 @@ mod tests {
     #[test]
     fn test_sub_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x94);
         
         cpu.reset();
@@ -7075,7 +7075,7 @@ mod tests {
     #[test]
     fn test_sub_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x95);
         
         cpu.reset();
@@ -7097,7 +7097,7 @@ mod tests {
     #[test]
     fn test_sub_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x97);
         
         cpu.reset();
@@ -7118,7 +7118,7 @@ mod tests {
     #[test]
     fn test_sbc_a_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x98);
         
         cpu.reset();
@@ -7140,7 +7140,7 @@ mod tests {
     #[test]
     fn test_sbc_a_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x99);
         
         cpu.reset();
@@ -7162,7 +7162,7 @@ mod tests {
     #[test]
     fn test_sbc_a_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x9a);
         
         cpu.reset();
@@ -7184,7 +7184,7 @@ mod tests {
     #[test]
     fn test_sbc_a_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x9b);
         
         cpu.reset();
@@ -7206,7 +7206,7 @@ mod tests {
     #[test]
     fn test_sbc_a_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x9c);
         
         cpu.reset();
@@ -7228,7 +7228,7 @@ mod tests {
     #[test]
     fn test_sbc_a_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x9d);
         
         cpu.reset();
@@ -7250,7 +7250,7 @@ mod tests {
     #[test]
     fn test_sbc_a_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0x9f);
         
         cpu.reset();
@@ -7271,7 +7271,7 @@ mod tests {
     #[test]
     fn test_and_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa0);
         
         cpu.reset();
@@ -7293,7 +7293,7 @@ mod tests {
     #[test]
     fn test_and_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa1);
         
         cpu.reset();
@@ -7315,7 +7315,7 @@ mod tests {
     #[test]
     fn test_and_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa2);
         
         cpu.reset();
@@ -7337,7 +7337,7 @@ mod tests {
     #[test]
     fn test_and_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa3);
         
         cpu.reset();
@@ -7358,7 +7358,7 @@ mod tests {
     #[test]
     fn test_and_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa4);
         
         cpu.reset();
@@ -7380,7 +7380,7 @@ mod tests {
     #[test]
     fn test_and_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa5);
         
         cpu.reset();
@@ -7402,7 +7402,7 @@ mod tests {
     #[test]
     fn test_and_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa6);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0xf5);
         
@@ -7426,7 +7426,7 @@ mod tests {
     #[test]
     fn test_and_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa7);
         
         cpu.reset();
@@ -7447,7 +7447,7 @@ mod tests {
     #[test]
     fn test_xor_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa8);
         
         cpu.reset();
@@ -7469,7 +7469,7 @@ mod tests {
     #[test]
     fn test_xor_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xa9);
         
         cpu.reset();
@@ -7491,7 +7491,7 @@ mod tests {
     #[test]
     fn test_xor_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xaa);
         
         cpu.reset();
@@ -7513,7 +7513,7 @@ mod tests {
     #[test]
     fn test_xor_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xab);
         
         cpu.reset();
@@ -7534,7 +7534,7 @@ mod tests {
     #[test]
     fn test_xor_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xac);
         
         cpu.reset();
@@ -7556,7 +7556,7 @@ mod tests {
     #[test]
     fn test_xor_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xad);
         
         cpu.reset();
@@ -7578,7 +7578,7 @@ mod tests {
     #[test]
     fn test_xor_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xae);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x15);
         
@@ -7602,7 +7602,7 @@ mod tests {
     #[test]
     fn test_xor_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xaf);
         
         cpu.reset();
@@ -7623,7 +7623,7 @@ mod tests {
     #[test]
     fn test_or_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb0);
         
         cpu.reset();
@@ -7645,7 +7645,7 @@ mod tests {
     #[test]
     fn test_or_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb1);
         
         cpu.reset();
@@ -7667,7 +7667,7 @@ mod tests {
     #[test]
     fn test_or_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb2);
         
         cpu.reset();
@@ -7689,7 +7689,7 @@ mod tests {
     #[test]
     fn test_or_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb3);
         
         cpu.reset();
@@ -7710,7 +7710,7 @@ mod tests {
     #[test]
     fn test_or_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb4);
         
         cpu.reset();
@@ -7732,7 +7732,7 @@ mod tests {
     #[test]
     fn test_or_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb5);
         
         cpu.reset();
@@ -7754,7 +7754,7 @@ mod tests {
     #[test]
     fn test_or_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb6);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0xfa);
         
@@ -7778,7 +7778,7 @@ mod tests {
     #[test]
     fn test_or_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb7);
         
         cpu.reset();
@@ -7799,7 +7799,7 @@ mod tests {
     #[test]
     fn test_cp_b() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb8);
         
         cpu.reset();
@@ -7820,7 +7820,7 @@ mod tests {
     #[test]
     fn test_cp_c() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xb9);
         
         cpu.reset();
@@ -7841,7 +7841,7 @@ mod tests {
     #[test]
     fn test_cp_d() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xba);
         
         cpu.reset();
@@ -7862,7 +7862,7 @@ mod tests {
     #[test]
     fn test_cp_e() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xbb);
         
         cpu.reset();
@@ -7883,7 +7883,7 @@ mod tests {
     #[test]
     fn test_cp_h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xbc);
         
         cpu.reset();
@@ -7904,7 +7904,7 @@ mod tests {
     #[test]
     fn test_cp_l() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xbd);
         
         cpu.reset();
@@ -7925,7 +7925,7 @@ mod tests {
     #[test]
     fn test_cp_ptr_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xbe);
         mock_bus.expect_read().with(eq(0x4001)).returning(|_| 0x23);
         
@@ -7948,7 +7948,7 @@ mod tests {
     #[test]
     fn test_cp_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xbf);
         
         cpu.reset();
@@ -7968,7 +7968,7 @@ mod tests {
     #[test]
     fn test_ret_nz_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -7991,7 +7991,7 @@ mod tests {
     #[test]
     fn test_ret_nz_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8014,7 +8014,7 @@ mod tests {
     #[test]
     fn test_pop_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
@@ -8034,7 +8034,7 @@ mod tests {
     #[test]
     fn test_jp_nz_nn_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8054,7 +8054,7 @@ mod tests {
     #[test]
     fn test_jp_nz_nn_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8074,7 +8074,7 @@ mod tests {
     #[test]
     fn test_jp_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc3);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8092,7 +8092,7 @@ mod tests {
     #[test]
     fn test_call_nz_nn_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xc4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8117,7 +8117,7 @@ mod tests {
     #[test]
     fn test_call_nz_nn_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xc4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8142,7 +8142,7 @@ mod tests {
     #[test]
     fn test_push_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xc5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
@@ -8162,7 +8162,7 @@ mod tests {
     #[test]
     fn test_rst_00h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xc7);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -8183,7 +8183,7 @@ mod tests {
     #[test]
     fn test_ret_z_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8206,7 +8206,7 @@ mod tests {
     #[test]
     fn test_ret_z_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8229,7 +8229,7 @@ mod tests {
     #[test]
     fn test_ret() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xc9);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8250,7 +8250,7 @@ mod tests {
     #[test]
     fn test_jp_z_nn_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xca);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8270,7 +8270,7 @@ mod tests {
     #[test]
     fn test_jp_z_nn_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xca);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8290,7 +8290,7 @@ mod tests {
     #[test]
     fn test_call_z_nn_when_z_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xcc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8315,7 +8315,7 @@ mod tests {
     #[test]
     fn test_call_z_nn_when_z_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xcc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8340,7 +8340,7 @@ mod tests {
     #[test]
     fn test_call_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xcd);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8363,7 +8363,7 @@ mod tests {
     #[test]
     fn test_rst_08h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xcf);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -8384,7 +8384,7 @@ mod tests {
     #[test]
     fn test_ret_nc_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8407,7 +8407,7 @@ mod tests {
     #[test]
     fn test_ret_nc_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8430,7 +8430,7 @@ mod tests {
     #[test]
     fn test_pop_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
@@ -8450,7 +8450,7 @@ mod tests {
     #[test]
     fn test_jp_nc_nn_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8470,7 +8470,7 @@ mod tests {
     #[test]
     fn test_jp_nc_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8490,7 +8490,7 @@ mod tests {
     #[test]
     fn test_out_ptr_n_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd3);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x01);
         mock_bus.expect_write().with(eq(0x2301), eq(0x23)).return_const(());
@@ -8509,7 +8509,7 @@ mod tests {
     #[test]
     fn test_call_nc_nn_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xd4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8534,7 +8534,7 @@ mod tests {
     #[test]
     fn test_call_nc_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xd4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8559,7 +8559,7 @@ mod tests {
     #[test]
     fn test_push_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
@@ -8579,7 +8579,7 @@ mod tests {
     #[test]
     fn test_rst_10h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xd7);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -8600,7 +8600,7 @@ mod tests {
     #[test]
     fn test_ret_c_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8623,7 +8623,7 @@ mod tests {
     #[test]
     fn test_ret_c_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xd8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8646,7 +8646,7 @@ mod tests {
     #[test]
     fn test_exx() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xd9);
         
         cpu.reset();
@@ -8686,7 +8686,7 @@ mod tests {
     #[test]
     fn test_jp_c_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xda);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8706,7 +8706,7 @@ mod tests {
     #[test]
     fn test_jp_c_nn_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xda);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8726,7 +8726,7 @@ mod tests {
     #[test]
     fn test_call_c_nn_when_c_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xdc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8751,7 +8751,7 @@ mod tests {
     #[test]
     fn test_call_c_nn_when_c_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xdc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8776,7 +8776,7 @@ mod tests {
     #[test]
     fn test_ld_ix_nn() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xdd);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x21);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xad);
@@ -8795,7 +8795,7 @@ mod tests {
     #[test]
     fn test_rst_18h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xdf);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -8816,7 +8816,7 @@ mod tests {
     #[test]
     fn test_ret_po_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8839,7 +8839,7 @@ mod tests {
     #[test]
     fn test_ret_po_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -8862,7 +8862,7 @@ mod tests {
     #[test]
     fn test_pop_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
@@ -8882,7 +8882,7 @@ mod tests {
     #[test]
     fn test_jp_po_nn_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8902,7 +8902,7 @@ mod tests {
     #[test]
     fn test_ex_ptr_sp_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe3);
         mock_bus.expect_read().with(eq(0x8856)).returning(|_| 0x11);
         mock_bus.expect_read().with(eq(0x8857)).returning(|_| 0x22);
@@ -8928,7 +8928,7 @@ mod tests {
     #[test]
     fn test_jp_po_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -8948,7 +8948,7 @@ mod tests {
     #[test]
     fn test_call_po_nn_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xe4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8973,7 +8973,7 @@ mod tests {
     #[test]
     fn test_call_po_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xe4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -8998,7 +8998,7 @@ mod tests {
     #[test]
     fn test_push_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
@@ -9018,7 +9018,7 @@ mod tests {
     #[test]
     fn test_and_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xe6);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xf5);
         
@@ -9040,7 +9040,7 @@ mod tests {
     #[test]
     fn test_rst_20h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xe7);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -9061,7 +9061,7 @@ mod tests {
     #[test]
     fn test_ret_pe_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9084,7 +9084,7 @@ mod tests {
     #[test]
     fn test_ret_pe_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xe8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9107,7 +9107,7 @@ mod tests {
     #[test]
     fn test_jp_pe_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xea);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9127,7 +9127,7 @@ mod tests {
     #[test]
     fn test_jp_pe_nn_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xea);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9147,7 +9147,7 @@ mod tests {
     #[test]
     fn test_ex_de_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xeb);
         
         cpu.reset();
@@ -9171,7 +9171,7 @@ mod tests {
     #[test]
     fn test_call_pe_nn_when_v_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xec);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9196,7 +9196,7 @@ mod tests {
     #[test]
     fn test_call_pe_nn_when_v_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xec);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9221,7 +9221,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_nn_bc() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x43);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x29);
@@ -9244,7 +9244,7 @@ mod tests {
     #[test]
     fn test_ld_i_a() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x47);
         
@@ -9263,7 +9263,7 @@ mod tests {
     #[test]
     fn test_sbc_hl_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x52);
         
@@ -9290,7 +9290,7 @@ mod tests {
     #[test]
     fn test_lddr_bc_is_3() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xb8);
         mock_bus.expect_read().with(eq(0x1114)).returning(|_| 0xa5);
@@ -9326,7 +9326,7 @@ mod tests {
     #[test]
     fn test_lddr_bc_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xb8);
         mock_bus.expect_read().with(eq(0x1112)).returning(|_| 0x88);
@@ -9362,7 +9362,7 @@ mod tests {
     #[test]
     fn test_lddr_bc_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xb8);
         mock_bus.expect_read().with(eq(0x1111)).returning(|_| 0xe5);
@@ -9398,7 +9398,7 @@ mod tests {
     #[test]
     fn test_ld_ptr_nn_de() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xed);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x53);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0x29);
@@ -9421,7 +9421,7 @@ mod tests {
     #[test]
     fn test_xor_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xee);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x15);
         
@@ -9443,7 +9443,7 @@ mod tests {
     #[test]
     fn test_rst_28h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xef);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -9464,7 +9464,7 @@ mod tests {
     #[test]
     fn test_ret_p_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9487,7 +9487,7 @@ mod tests {
     #[test]
     fn test_ret_p_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf0);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9510,7 +9510,7 @@ mod tests {
     #[test]
     fn test_pop_af() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf1);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0xba);
@@ -9530,7 +9530,7 @@ mod tests {
     #[test]
     fn test_jp_p_nn_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9550,7 +9550,7 @@ mod tests {
     #[test]
     fn test_jp_p_nn_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf2);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9570,7 +9570,7 @@ mod tests {
     #[test]
     fn test_di() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf3);
 
         cpu.reset();
@@ -9588,7 +9588,7 @@ mod tests {
     #[test]
     fn test_call_p_nn_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xf4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9613,7 +9613,7 @@ mod tests {
     #[test]
     fn test_call_p_nn_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xf4);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9638,7 +9638,7 @@ mod tests {
     #[test]
     fn test_push_af() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf5);
         mock_bus.expect_write().with(eq(0x4fff), eq(0xba)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0xad)).return_const(());
@@ -9658,7 +9658,7 @@ mod tests {
     #[test]
     fn test_or_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf6);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xfa);
         
@@ -9680,7 +9680,7 @@ mod tests {
     #[test]
     fn test_rst_30h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xf7);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());
@@ -9701,7 +9701,7 @@ mod tests {
     #[test]
     fn test_ret_m_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9724,7 +9724,7 @@ mod tests {
     #[test]
     fn test_ret_m_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0xbaad)).returning(|_| 0xf8);
         mock_bus.expect_read().with(eq(0x4ffe)).returning(|_| 0x37);
         mock_bus.expect_read().with(eq(0x4fff)).returning(|_| 0x12);
@@ -9747,7 +9747,7 @@ mod tests {
     #[test]
     fn test_ld_sp_hl() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xf9);
         
         cpu.reset();
@@ -9765,7 +9765,7 @@ mod tests {
     #[test]
     fn test_jp_m_nn_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xfa);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9785,7 +9785,7 @@ mod tests {
     #[test]
     fn test_jp_m_nn_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xfa);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(2)).returning(|_| 0xba);
@@ -9805,7 +9805,7 @@ mod tests {
     #[test]
     fn test_ei() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xfb);
 
         cpu.reset();
@@ -9823,7 +9823,7 @@ mod tests {
     #[test]
     fn test_call_m_nn_when_s_is_1() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xfc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9848,7 +9848,7 @@ mod tests {
     #[test]
     fn test_call_m_nn_when_s_is_0() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xfc);
         mock_bus.expect_read().with(eq(0x1235)).returning(|_| 0xad);
         mock_bus.expect_read().with(eq(0x1236)).returning(|_| 0xba);
@@ -9873,7 +9873,7 @@ mod tests {
     #[test]
     fn test_cp_n() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0)).returning(|_| 0xfe);
         mock_bus.expect_read().with(eq(1)).returning(|_| 0x23);
         
@@ -9894,7 +9894,7 @@ mod tests {
     #[test]
     fn test_rst_38h() {
         let mut cpu = Z80CPU::new();
-        let mut mock_bus = MockReadWrite::new();
+        let mut mock_bus = MockBus::new();
         mock_bus.expect_read().with(eq(0x1234)).returning(|_| 0xff);
         mock_bus.expect_write().with(eq(0x4fff), eq(0x12)).return_const(());
         mock_bus.expect_write().with(eq(0x4ffe), eq(0x35)).return_const(());

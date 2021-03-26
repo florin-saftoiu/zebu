@@ -71,7 +71,8 @@ pub struct Z80CPU {
     sp: u16,
     pc: u16,
     t_cycles: u8,
-    interrupts_enabled: bool
+    interrupts_enabled: bool,
+    interrupt_mode: u8
 }
 
 pub struct Z80CPUState {
@@ -83,7 +84,9 @@ pub struct Z80CPUState {
     pub ix: u16,
     pub iy: u16,
     pub sp: u16,
-    pub pc: u16
+    pub pc: u16,
+    pub interrupts_enabled: bool,
+    pub interrupt_mode: u8
 }
 
 impl Z80CPU {
@@ -99,7 +102,8 @@ impl Z80CPU {
             sp: 0,
             pc: 0,
             t_cycles: 0,
-            interrupts_enabled: true
+            interrupts_enabled: true,
+            interrupt_mode: 0
         }
     }
     
@@ -217,7 +221,9 @@ impl Z80CPU {
             ix: self.ix,
             iy: self.iy,
             sp: self.sp,
-            pc: self.pc
+            pc: self.pc,
+            interrupts_enabled: self.interrupts_enabled,
+            interrupt_mode: self.interrupt_mode
         }
     }
     

@@ -83,7 +83,7 @@ fn print_stack_state(ram_slice: Result<&[u8], &str>, offset: u16) {
 
 fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
     let lines = format!(
-        "{}{}.{}.{}{}{}\n\
+        "{}{}.{}.{}{}{} IM{} {}I\n\
         \n\
         AF: {:02X}{:02X} AF': {:02X}{:02X}\n\
         BC: {:02X}{:02X} BC': {:02X}{:02X}\n\
@@ -94,7 +94,13 @@ fn draw_cpu_state(state: Z80CPUState, c: Context, g: &mut G2d, glyphs: &mut Glyp
         IY: {:04X}\n\
         SP: {:04X}\n\
         PC: {:04X}",
-        if state.f & 0b10000000 != 0 { "S" } else { "." }, if state.f & 0b01000000 != 0 { "Z" } else { "." }, if state.f & 0b00010000 != 0 { "H" } else { "." }, if state.f & 0b00000100 != 0 { "V" } else { "." }, if state.f & 0b00000010 != 0 { "N" } else { "." }, if state.f & 0b00000001 != 0 { "C" } else { "." },
+        if state.f & 0b10000000 != 0 { "S" } else { "." },
+        if state.f & 0b01000000 != 0 { "Z" } else { "." },
+        if state.f & 0b00010000 != 0 { "H" } else { "." },
+        if state.f & 0b00000100 != 0 { "V" } else { "." },
+        if state.f & 0b00000010 != 0 { "N" } else { "." },
+        if state.f & 0b00000001 != 0 { "C" } else { "." },
+        state.interrupt_mode, if state.interrupts_enabled { "E" } else { "D" },
         state.a, state.f, state.a_alt, state.f_alt,
         state.b, state.c, state.b_alt, state.c_alt,
         state.d, state.e, state.d_alt, state.e_alt,

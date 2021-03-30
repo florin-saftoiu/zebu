@@ -30,7 +30,17 @@ const COLORS: [[u8; 4]; 8] = [
     [0, 215, 215, 255],  // CYAN
     [215, 215, 0, 255],  // YELLOW
     [215, 215, 215, 255] // WHITE
-    ];
+];
+const BRIGHT_COLORS: [[u8; 4]; 8] = [
+    [0, 0, 0, 255],      // BLACK
+    [0, 0, 255, 255],    // BLUE
+    [255, 0, 0, 255],    // RED
+    [255, 0, 255, 255],  // MAGENTA
+    [0, 255, 0, 255],    // GREEN
+    [0, 255, 255, 255],  // CYAN
+    [255, 255, 0, 255],  // YELLOW
+    [255, 255, 255, 255] // WHITE
+];
 
 fn print_cpu_state(state: Z80CPUState) {
     println!("   AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
@@ -323,9 +333,16 @@ fn main() -> io::Result<()> {
                     let pixel_bit = pixel_byte & pixel_bit_mask != 0;
 
                     let attribute_byte = attributes_ram_slice[((pixel_y / 8) * 32 + (pixel_x / 8)) as usize];
-                    let ink = COLORS[(attribute_byte & 0b00000111) as usize];
+                    let _ = attribute_byte & 0b10000000 != 0; // TODO FLASH ATTRIBUTE
+                    let bright = attribute_byte & 0b01000000 != 0;
+                    let paper_index = (attribute_byte & 0b00111000) as usize;
+                    let ink_index = (attribute_byte & 0b00000111) as usize;
 
-                    if pixel_bit { Rgba(ink) } else { Rgba(COLORS[0]) }
+                    if pixel_bit {
+                        Rgba(if bright { BRIGHT_COLORS[ink_index] } else { COLORS[ink_index] })
+                    } else {
+                        Rgba(if bright { BRIGHT_COLORS[paper_index] } else { COLORS[paper_index] })
+                    }
                 });
                 let texture = Texture::from_image(&mut texture_context, &buffer, &TextureSettings::new()).unwrap();
                 image.draw(&texture, &c.draw_state, c.transform, g);

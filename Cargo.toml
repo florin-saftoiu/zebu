@@ -9,7 +9,8 @@ edition = "2018"
 
 [dependencies]
 find_folder = "0.3.0"
-piston_window = "0.116.0"
+piston_window = "0.118.0"
+image = "0.23.14"
 
 [dev-dependencies]
-mockall = "0.8.3"
+mockall = "0.9.1"

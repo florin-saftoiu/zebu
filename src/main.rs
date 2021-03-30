@@ -6,6 +6,7 @@ use std::fmt::Write;
 use std::fs::File;
 
 use piston_window::*;
+use ::image::{ImageBuffer, Rgba};
 
 mod z80;
 use z80::{cpu::*, machine::*};
@@ -17,10 +18,19 @@ const SCREEN_HEIGHT: f64 = 192.0;
 const SCREEN_SCALE: f64 = 2.0;
 
 const BACKGROUND: [f32; 4] = [0.0, 0.478, 0.8, 1.0];
-const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+const COLORS: [[u8; 4]; 8] = [
+    [0, 0, 0, 255],      // BLACK
+    [0, 0, 215, 255],    // BLUE
+    [215, 0, 0, 255],    // RED
+    [215, 0, 215, 255],  // MAGENTA
+    [0, 215, 0, 255],    // GREEN
+    [0, 215, 215, 255],  // CYAN
+    [215, 215, 0, 255],  // YELLOW
+    [215, 215, 215, 255] // WHITE
+    ];
 
 fn print_cpu_state(state: Z80CPUState) {
     println!("   AF: {:02X}{:02X} AF': {:02X}{:02X}", state.a, state.f, state.a_alt, state.f_alt);
@@ -208,13 +218,15 @@ fn main() -> io::Result<()> {
     machine.reset();
     
     let mut window: PistonWindow = WindowSettings::new("Zebu", [1024, 768])
-    .resizable(false)
-    .exit_on_esc(true)
-    .automatic_close(true)
-    .build()
-    .unwrap();
+        .resizable(false)
+        .exit_on_esc(true)
+        .automatic_close(true)
+        .build()
+        .unwrap();
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
     
+    let mut texture_context = window.create_texture_context();
+
     let mut paused = true;
     let mut pointer_offset = 0usize;
     while let Some(e) = window.next() {
@@ -295,19 +307,37 @@ fn main() -> io::Result<()> {
             }
         }
         
-        window.draw_2d(&e, |c, g, device| {
-            clear(BACKGROUND, g);
-            rectangle(BLACK,
-                [WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE],
-                c.transform, g);
-            draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
-            draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
-            draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs, pointer_offset);
-            draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
-            
-            glyphs.factory.encoder.flush(device);
-        });
-        window.set_title(format!("Zebu - T: {}", machine.get_t_cycles()));
+        if let Some(_) = e.render_args() {
+            window.draw_2d(&e, |c, g, device| {
+                clear(BACKGROUND, g);
+                let image = Image::new().rect([WINDOW_PADDING, WINDOW_PADDING, SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE]);
+                let pixels_ram_slice = machine.get_ram_slice_state(0, 6144);
+                let attributes_ram_slice = machine.get_ram_slice_state(0x1800, 768);
+                let buffer = ImageBuffer::from_fn((SCREEN_WIDTH * SCREEN_SCALE) as u32, (SCREEN_HEIGHT * SCREEN_SCALE) as u32, |x, y| {
+                    let pixel_x = x / SCREEN_SCALE as u32;
+                    let pixel_y = y / SCREEN_SCALE as u32;
+                    let pixel_byte_offset = pixel_x / 8;
+                    let pixel_byte = pixels_ram_slice[(pixel_y * 32 + pixel_byte_offset) as usize];
+                    let pixel_bit_offset = pixel_x % 8;
+                    let pixel_bit_mask = 0b10000000u8 >> pixel_bit_offset;
+                    let pixel_bit = pixel_byte & pixel_bit_mask != 0;
+
+                    let attribute_byte = attributes_ram_slice[((pixel_y / 8) * 32 + (pixel_x / 8)) as usize];
+                    let ink = COLORS[(attribute_byte & 0b00000111) as usize];
+
+                    if pixel_bit { Rgba(ink) } else { Rgba(COLORS[0]) }
+                });
+                let texture = Texture::from_image(&mut texture_context, &buffer, &TextureSettings::new()).unwrap();
+                image.draw(&texture, &c.draw_state, c.transform, g);
+                draw_cpu_state(machine.get_cpu_state(), c, g, &mut glyphs);
+                draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
+                draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs, pointer_offset);
+                draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
+                
+                glyphs.factory.encoder.flush(device);
+            });
+            window.set_title(format!("Zebu - T: {}", machine.get_t_cycles()));
+        }
     }
     
     Ok(())

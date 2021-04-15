@@ -236,10 +236,11 @@ fn main() -> io::Result<()> {
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
     
     let mut texture_context = window.create_texture_context();
+    let mut events = Events::new(EventSettings::new());
 
     let mut paused = true;
     let mut pointer_offset = 0usize;
-    while let Some(e) = window.next() {
+    while let Some(e) = events.next(&mut window) {
         if paused {
             if let Some(Button::Keyboard(key)) = e.press_args() {
                 if key == Key::S {
@@ -276,7 +277,7 @@ fn main() -> io::Result<()> {
                             print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                             print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
                         },
-                        Err(e) => panic!(e)
+                        Err(e) => panic!("{}", e)
                     }
                 } else if key == Key::Up {
                     if pointer_offset > 0 {

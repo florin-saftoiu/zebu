@@ -236,7 +236,7 @@ fn main() -> io::Result<()> {
     let mut glyphs = window.load_font(assets.join("3270Medium.ttf")).unwrap();
     
     let mut texture_context = window.create_texture_context();
-    let mut events = Events::new(EventSettings::new());
+    let mut events = Events::new(EventSettings::new().max_fps(50));
 
     let mut paused = true;
     let mut pointer_offset = 0usize;
@@ -308,7 +308,9 @@ fn main() -> io::Result<()> {
             }
             // user may have just paused and finished the current instruction
             if !paused {
-                machine.clock();
+                for _ in 0..69888 { // a frame is this long
+                    machine.clock();
+                }
             }
         }
         

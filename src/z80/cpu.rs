@@ -162,7 +162,11 @@ impl Z80CPU {
                     pc = pc.wrapping_add(1);
                     let nb_ix_operands = IX_OPCODES[usize::from(ix_opcode)].2;
                     if nb_ix_operands == 0 {
-                        instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), IX_OPCODES[usize::from(ix_opcode)].0));
+                        if IX_OPCODES[usize::from(ix_opcode)].0 == "???" {
+                            instructions.push(format!("{:04X}: {} (DD {:02X})", pc.wrapping_sub(2), IX_OPCODES[usize::from(ix_opcode)].0, ix_opcode));
+                        } else {
+                            instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), IX_OPCODES[usize::from(ix_opcode)].0));
+                        }
                     } else if nb_ix_operands == 1 {
                         let n = bus.read(pc);
                         pc = pc.wrapping_add(1);
@@ -179,7 +183,11 @@ impl Z80CPU {
                     pc = pc.wrapping_add(1);
                     let nb_extended_operands = EXTENDED_OPCODES[usize::from(extended_opcode)].2;
                     if nb_extended_operands == 0 {
-                        instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), EXTENDED_OPCODES[usize::from(extended_opcode)].0));
+                        if EXTENDED_OPCODES[usize::from(extended_opcode)].0 == "???" {
+                            instructions.push(format!("{:04X}: {} (ED {:02X})", pc.wrapping_sub(2), EXTENDED_OPCODES[usize::from(extended_opcode)].0, extended_opcode));
+                        } else {
+                            instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), EXTENDED_OPCODES[usize::from(extended_opcode)].0));
+                        }
                     } else if nb_extended_operands == 1 {
                         let n = bus.read(pc);
                         pc = pc.wrapping_add(1);
@@ -203,7 +211,11 @@ impl Z80CPU {
                     pc = pc.wrapping_add(1);
                     let nb_iy_operands = IY_OPCODES[usize::from(iy_opcode)].2;
                     if nb_iy_operands == 0 {
-                        instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), IY_OPCODES[usize::from(iy_opcode)].0));
+                        if IY_OPCODES[usize::from(iy_opcode)].0 == "???" {
+                            instructions.push(format!("{:04X}: {} (FD {:02X})", pc.wrapping_sub(2), IY_OPCODES[usize::from(iy_opcode)].0, iy_opcode));
+                        } else {
+                            instructions.push(format!("{:04X}: {}", pc.wrapping_sub(2), IY_OPCODES[usize::from(iy_opcode)].0));
+                        }
                     } else if nb_iy_operands == 1 {
                         let n = bus.read(pc);
                         pc = pc.wrapping_add(1);
@@ -216,7 +228,11 @@ impl Z80CPU {
                         instructions.push(format!("{:04X}: {} {:04X}h", pc.wrapping_sub(4), IY_OPCODES[usize::from(iy_opcode)].0, (u16::from(n_high) << 8) + u16::from(n_low)));
                     }
                 } else {
-                    instructions.push(format!("{:04X}: {}", pc.wrapping_sub(1), OPCODES[usize::from(opcode)].0));
+                    if OPCODES[usize::from(opcode)].0 == "???" {
+                        instructions.push(format!("{:04X}: {} ({:02X})", pc.wrapping_sub(1), OPCODES[usize::from(opcode)].0, opcode));
+                    } else {
+                        instructions.push(format!("{:04X}: {}", pc.wrapping_sub(1), OPCODES[usize::from(opcode)].0));
+                    }
                 }
             } else if nb_operands == 1 {
                 let n = bus.read(pc);

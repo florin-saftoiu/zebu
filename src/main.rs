@@ -21,6 +21,7 @@ const BACKGROUND: [f32; 4] = [0.0, 0.478, 0.8, 1.0];
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
 const COLORS: [[u8; 4]; 8] = [
     [0, 0, 0, 255],      // BLACK
     [0, 0, 215, 255],    // BLUE
@@ -215,6 +216,18 @@ fn draw_stack_state(ram_slice: Result<&[u8], &str>, offset: u16, c: Context, g: 
     
 }
 
+fn draw_runto_address(runto_address: u16, c: Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    let y = WINDOW_PADDING + (13.0 * WINDOW_FONTSIZE);
+    let line = format!("RUNTO: {:04X}", runto_address);
+    text::Text::new_color(GREEN, WINDOW_FONTSIZE as u32).draw(
+        &line,
+        glyphs,
+        &c.draw_state,
+        c.transform.trans(WINDOW_PADDING + SCREEN_WIDTH * SCREEN_SCALE + WINDOW_PADDING, y),
+        g
+    ).unwrap();
+}
+
 fn main() -> io::Result<()> {
     println!("Zebu");
     let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
@@ -241,93 +254,172 @@ fn main() -> io::Result<()> {
     let mut paused = true;
     let mut pointer_offset = 0usize;
     let mut ctrl_pressed = false;
+    let mut runto_mode = false;
+    let mut runto_address = 0u16;
     while let Some(e) = events.next(&mut window) {
-        if paused {
+        if runto_mode {
             if let Some(Button::Keyboard(key)) = e.press_args() {
-                if key == Key::S {
-                    println!("    T: {}", machine.get_t_cycles());
-                    print_cpu_state(machine.get_cpu_state());
-                    print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                    print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
-                    print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
-                } else if key == Key::F10 {
-                    if ctrl_pressed {
-                        match u16::from_str_radix(&(machine.get_next_cpu_instructions(pointer_offset + 1)[pointer_offset])[0..4], 16) {
-                            Ok(breakpoint) => {
-                                loop {
-                                    machine.clock();
-                                    if machine.get_cpu_state().pc >= breakpoint && machine.cpu_instruction_complete() {
-                                        break;
-                                    }
-                                }
-                                pointer_offset = 0;
-                                println!("    T: {}", machine.get_t_cycles());
-                                print_cpu_state(machine.get_cpu_state());
-                                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                                print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
-                                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
-                            },
-                            Err(e) => panic!("{}", e)
-                        }
-                    } else {
+                match key {
+                    Key::D0 | Key::NumPad0 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(0);
+                    },
+                    Key::D1 | Key::NumPad1 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(1);
+                    },
+                    Key::D2 | Key::NumPad2 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(2);
+                    },
+                    Key::D3 | Key::NumPad3 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(3);
+                    },
+                    Key::D4 | Key::NumPad4 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(4);
+                    },
+                    Key::D5 | Key::NumPad5 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(5);
+                    },
+                    Key::D6 | Key::NumPad6 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(6);
+                    },
+                    Key::D7 | Key::NumPad7 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(7);
+                    },
+                    Key::D8 | Key::NumPad8 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(8);
+                    },
+                    Key::D9 | Key::NumPad9 => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(9);
+                    },
+                    Key::A => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(10);
+                    },
+                    Key::B => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(11);
+                    },
+                    Key::C => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(12);
+                    },
+                    Key::D => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(13);
+                    },
+                    Key::E => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(14);
+                    },
+                    Key::F => {
+                        runto_address = runto_address.wrapping_mul(16).wrapping_add(15);
+                    },
+                    Key::Return | Key::NumPadEnter => {
+                        runto_mode = false;
                         loop {
                             machine.clock();
-                            if machine.cpu_instruction_complete() {
+                            if machine.get_cpu_state().pc >= runto_address && machine.cpu_instruction_complete() {
                                 break;
                             }
                         }
+                        pointer_offset = 0;
                         println!("    T: {}", machine.get_t_cycles());
                         print_cpu_state(machine.get_cpu_state());
                         print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
                         print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                         print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                    },
+                    _ => {
+
                     }
-                } else if key == Key::Up {
-                    if pointer_offset > 0 {
-                        pointer_offset -= 1;
-                    }
-                } else if key == Key::Down {
-                    if pointer_offset < 23 {
-                        pointer_offset += 1;
-                    }
-                } else if key == Key::F5 {
-                    paused = false;
                 }
+                println!("RUNTO: {:04X}", runto_address);
             }
         } else {
-            if let Some(Button::Keyboard(key)) = e.press_args() {
-                if key == Key::F6 {
-                    paused = true;
-                    // finish current instruction before pausing
-                    if !machine.cpu_instruction_complete() {
-                        loop {
-                            machine.clock();
-                            if machine.cpu_instruction_complete() {
-                                break;
+            if paused {
+                if let Some(Button::Keyboard(key)) = e.press_args() {
+                    if key == Key::S {
+                        println!("    T: {}", machine.get_t_cycles());
+                        print_cpu_state(machine.get_cpu_state());
+                        print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                        print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                        print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                    } else if key == Key::F10 {
+                        if ctrl_pressed {
+                            match u16::from_str_radix(&(machine.get_next_cpu_instructions(pointer_offset + 1)[pointer_offset])[0..4], 16) {
+                                Ok(breakpoint) => {
+                                    loop {
+                                        machine.clock();
+                                        if machine.get_cpu_state().pc >= breakpoint && machine.cpu_instruction_complete() {
+                                            break;
+                                        }
+                                    }
+                                    pointer_offset = 0;
+                                    println!("    T: {}", machine.get_t_cycles());
+                                    print_cpu_state(machine.get_cpu_state());
+                                    print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                                    print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                                    print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                                },
+                                Err(e) => panic!("{}", e)
+                            }
+                        } else {
+                            loop {
+                                machine.clock();
+                                if machine.cpu_instruction_complete() {
+                                    break;
+                                }
+                            }
+                            println!("    T: {}", machine.get_t_cycles());
+                            print_cpu_state(machine.get_cpu_state());
+                            print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                            print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                            print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                        }
+                    } else if key == Key::Up {
+                        if pointer_offset > 0 {
+                            pointer_offset -= 1;
+                        }
+                    } else if key == Key::Down {
+                        if pointer_offset < 23 {
+                            pointer_offset += 1;
+                        }
+                    } else if key == Key::F5 {
+                        paused = false;
+                    } else if key == Key::G && !runto_mode {
+                        runto_mode = true;
+                        runto_address = 0;
+                    }
+                }
+            } else {
+                if let Some(Button::Keyboard(key)) = e.press_args() {
+                    if key == Key::F6 {
+                        paused = true;
+                        // finish current instruction before pausing
+                        if !machine.cpu_instruction_complete() {
+                            loop {
+                                machine.clock();
+                                if machine.cpu_instruction_complete() {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
-            // user may have just paused and finished the current instruction
-            if !paused {
-                for _ in 0..69888 { // a frame is this long
-                    machine.clock();
+                // user may have just paused and finished the current instruction
+                if !paused {
+                    for _ in 0..69888 { // a frame is this long
+                        machine.clock();
+                    }
                 }
             }
-        }
-        
-        if let Some(Button::Keyboard(key)) = e.press_args() {
-            if key == Key::R {
-                machine.reset();
-            } else if key == Key::LCtrl || key == Key::RCtrl {
-                ctrl_pressed = true;
+            
+            if let Some(Button::Keyboard(key)) = e.press_args() {
+                if key == Key::R {
+                    machine.reset();
+                } else if key == Key::LCtrl || key == Key::RCtrl {
+                    ctrl_pressed = true;
+                }
             }
-        }
 
-        if let Some(Button::Keyboard(key)) = e.release_args() {
-            if key == Key::LCtrl || key == Key::RCtrl {
-                ctrl_pressed = false;
+            if let Some(Button::Keyboard(key)) = e.release_args() {
+                if key == Key::LCtrl || key == Key::RCtrl {
+                    ctrl_pressed = false;
+                }
             }
         }
         
@@ -364,6 +456,9 @@ fn main() -> io::Result<()> {
                 draw_ram_slice_state(machine.get_ram_slice_state(0, 256), 0x4000, c, g, &mut glyphs);
                 draw_next_cpu_instructions(machine.get_next_cpu_instructions(24), c, g, &mut glyphs, pointer_offset);
                 draw_stack_state(machine.get_stack_slice_state(0, 16), machine.get_cpu_state().sp, c, g, &mut glyphs);
+                if runto_mode {
+                    draw_runto_address(runto_address, c, g, &mut glyphs);
+                }
                 
                 glyphs.factory.encoder.flush(device);
             });

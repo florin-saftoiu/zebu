@@ -240,6 +240,7 @@ fn main() -> io::Result<()> {
 
     let mut paused = true;
     let mut pointer_offset = 0usize;
+    let mut ctrl_pressed = false;
     while let Some(e) = events.next(&mut window) {
         if paused {
             if let Some(Button::Keyboard(key)) = e.press_args() {
@@ -250,34 +251,36 @@ fn main() -> io::Result<()> {
                     print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
                     print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
                 } else if key == Key::F10 {
-                    loop {
-                        machine.clock();
-                        if machine.cpu_instruction_complete() {
-                            break;
-                        }
-                    }
-                    println!("    T: {}", machine.get_t_cycles());
-                    print_cpu_state(machine.get_cpu_state());
-                    print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                    print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
-                    print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
-                } else if key == Key::B {
-                    match u16::from_str_radix(&(machine.get_next_cpu_instructions(pointer_offset + 1)[pointer_offset])[0..4], 16) {
-                        Ok(breakpoint) => {
-                            loop {
-                                machine.clock();
-                                if machine.get_cpu_state().pc >= breakpoint && machine.cpu_instruction_complete() {
-                                    break;
+                    if ctrl_pressed {
+                        match u16::from_str_radix(&(machine.get_next_cpu_instructions(pointer_offset + 1)[pointer_offset])[0..4], 16) {
+                            Ok(breakpoint) => {
+                                loop {
+                                    machine.clock();
+                                    if machine.get_cpu_state().pc >= breakpoint && machine.cpu_instruction_complete() {
+                                        break;
+                                    }
                                 }
+                                pointer_offset = 0;
+                                println!("    T: {}", machine.get_t_cycles());
+                                print_cpu_state(machine.get_cpu_state());
+                                print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                                print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                                print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
+                            },
+                            Err(e) => panic!("{}", e)
+                        }
+                    } else {
+                        loop {
+                            machine.clock();
+                            if machine.cpu_instruction_complete() {
+                                break;
                             }
-                            pointer_offset = 0;
-                            println!("    T: {}", machine.get_t_cycles());
-                            print_cpu_state(machine.get_cpu_state());
-                            print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
-                            print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
-                            print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
-                        },
-                        Err(e) => panic!("{}", e)
+                        }
+                        println!("    T: {}", machine.get_t_cycles());
+                        print_cpu_state(machine.get_cpu_state());
+                        print_ram_slice_state(machine.get_ram_slice_state(0, 32), 0x4000);
+                        print_stack_state(machine.get_stack_slice_state(0, 8), machine.get_cpu_state().sp);
+                        print_next_cpu_instructions(machine.get_next_cpu_instructions(3));
                     }
                 } else if key == Key::Up {
                     if pointer_offset > 0 {
@@ -317,6 +320,14 @@ fn main() -> io::Result<()> {
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if key == Key::R {
                 machine.reset();
+            } else if key == Key::LCtrl || key == Key::RCtrl {
+                ctrl_pressed = true;
+            }
+        }
+
+        if let Some(Button::Keyboard(key)) = e.release_args() {
+            if key == Key::LCtrl || key == Key::RCtrl {
+                ctrl_pressed = false;
             }
         }
         

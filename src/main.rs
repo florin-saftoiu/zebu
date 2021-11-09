@@ -383,6 +383,15 @@ fn main() -> io::Result<()> {
                     } else if key == Key::G && !runto_mode {
                         runto_mode = true;
                         runto_address = 0;
+                    } else if key == Key::N {
+                        while !machine.get_next_cpu_instructions(1)[0].contains("???") {
+                            loop {
+                                machine.clock();
+                                if machine.cpu_instruction_complete() {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             } else {

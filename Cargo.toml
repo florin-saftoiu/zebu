@@ -3,14 +3,14 @@ name = "zebu"
 version = "0.1.0"
 description = "A Z80 emulator written in Rust"
 authors = ["Florin Saftoiu <florin.saftoiu@soft-to-you.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 find_folder = "0.3.0"
-piston_window = "0.118.0"
-image = "0.23.14"
+piston_window = "0.129.0"
+image = "0.24.7"
 
 [dev-dependencies]
-mockall = "0.9.1"
+mockall = "0.11.4"

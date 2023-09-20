@@ -16,7 +16,7 @@ const OPCODES: [(&str, fn(&mut Z80CPU, &mut dyn Bus) -> u8, u8, u8); 256] = [
 /* b0 */ ("OR B"      , Z80CPU::or_b       , 0, 4), ("OR C"      , Z80CPU::or_c       , 0,  4), ("OR D"       , Z80CPU::or_d        , 0,  4), ("OR E"       , Z80CPU::or_e          , 0,  4), ("OR H"      , Z80CPU::or_h          , 0,  4), ("OR L"      , Z80CPU::or_l          , 0,  4), ("OR (HL)"    , Z80CPU::or_ptr_hl     , 0,  7), ("OR A"      , Z80CPU::or_a          , 0,  4), ("CP B"      , Z80CPU::cp_b          , 0,  4), ("CP C"      , Z80CPU::cp_c          , 0,  4), ("CP D"       , Z80CPU::cp_d          , 0,  4), ("CP E"     , Z80CPU::cp_e          , 0, 4), ("CP H"    , Z80CPU::cp_h          , 0,  4), ("CP L"    , Z80CPU::cp_l          , 0,  4), ("CP (HL)"   , Z80CPU::cp_ptr_hl     , 0, 7), ("CP A"    , Z80CPU::cp_a          , 0,  4), /* b0 */
 /* c0 */ ("RET NZ"    , Z80CPU::ret_nz     , 0, 5), ("POP BC"    , Z80CPU::pop_bc     , 0, 10), ("JP NZ,"     , Z80CPU::jp_nz_nn    , 2, 10), ("JP"         , Z80CPU::jp_nn         , 2, 10), ("CALL NZ,"  , Z80CPU::call_nz_nn    , 2, 10), ("PUSH BC"   , Z80CPU::push_bc       , 0, 11), ("ADD A,"     , Z80CPU::add_a_n       , 1,  7), ("RST 00h"   , Z80CPU::rst_00h       , 0, 11), ("RET Z"     , Z80CPU::ret_z         , 0,  5), ("RET"       , Z80CPU::ret           , 0, 10), ("JP Z,"      , Z80CPU::jp_z_nn       , 2, 10), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("CALL Z," , Z80CPU::call_z_nn     , 2, 10), ("CALL"    , Z80CPU::call_nn       , 2, 17), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RST 08h" , Z80CPU::rst_08h       , 0, 11), /* c0 */
 /* d0 */ ("RET NC"    , Z80CPU::ret_nc     , 0, 5), ("POP DE"    , Z80CPU::pop_de     , 0, 10), ("JP NC,"     , Z80CPU::jp_nc_nn    , 2, 10), ("OUT (n), A" , Z80CPU::out_ptr_n_a   , 1, 11), ("CALL NC,"  , Z80CPU::call_nc_nn    , 2, 10), ("PUSH DE"   , Z80CPU::push_de       , 0, 11), ("???"        , Z80CPU::invalid_opcode, 0,  4), ("RST 10h"   , Z80CPU::rst_10h       , 0, 11), ("RET C"     , Z80CPU::ret_c         , 0,  5), ("EXX"       , Z80CPU::exx           , 0,  4), ("JP C,"      , Z80CPU::jp_c_nn       , 2, 10), ("???"      , Z80CPU::invalid_opcode, 0, 4), ("CALL C," , Z80CPU::call_c_nn     , 2, 10), ("IX"      , Z80CPU::ix            , 0,  0), ("???"       , Z80CPU::invalid_opcode, 0, 4), ("RST 18h" , Z80CPU::rst_18h       , 0, 11), /* d0 */
-/* e0 */ ("RET PO"    , Z80CPU::ret_po     , 0, 5), ("POP HL"    , Z80CPU::pop_hl     , 0, 10), ("JP PO,"     , Z80CPU::jp_po_nn    , 2, 10), ("EX (SP), HL", Z80CPU::ex_ptr_sp_hl  , 0, 19), ("CALL PO,"  , Z80CPU::call_po_nn    , 2, 10), ("PUSH HL"   , Z80CPU::push_hl       , 0, 11), ("AND"        , Z80CPU::and_n         , 1,  7), ("RST 20h"   , Z80CPU::rst_20h       , 0, 11), ("RET PE"    , Z80CPU::ret_pe        , 0,  5), ("???"       , Z80CPU::invalid_opcode, 0,  4), ("JP PE,"     , Z80CPU::jp_pe_nn      , 2, 10), ("EX DE, HL", Z80CPU::ex_de_hl      , 0, 4), ("CALL PE,", Z80CPU::call_pe_nn    , 2, 10), ("EXTENDED", Z80CPU::extended      , 0,  0), ("XOR"       , Z80CPU::xor_n         , 1, 7), ("RST 28h" , Z80CPU::rst_28h       , 0, 11), /* e0 */
+/* e0 */ ("RET PO"    , Z80CPU::ret_po     , 0, 5), ("POP HL"    , Z80CPU::pop_hl     , 0, 10), ("JP PO,"     , Z80CPU::jp_po_nn    , 2, 10), ("EX (SP), HL", Z80CPU::ex_ptr_sp_hl  , 0, 19), ("CALL PO,"  , Z80CPU::call_po_nn    , 2, 10), ("PUSH HL"   , Z80CPU::push_hl       , 0, 11), ("AND"        , Z80CPU::and_n         , 1,  7), ("RST 20h"   , Z80CPU::rst_20h       , 0, 11), ("RET PE"    , Z80CPU::ret_pe        , 0,  5), ("JP (HL)"   , Z80CPU::jp_ptr_hl     , 0,  4), ("JP PE,"     , Z80CPU::jp_pe_nn      , 2, 10), ("EX DE, HL", Z80CPU::ex_de_hl      , 0, 4), ("CALL PE,", Z80CPU::call_pe_nn    , 2, 10), ("EXTENDED", Z80CPU::extended      , 0,  0), ("XOR"       , Z80CPU::xor_n         , 1, 7), ("RST 28h" , Z80CPU::rst_28h       , 0, 11), /* e0 */
 /* f0 */ ("RET P"     , Z80CPU::ret_p      , 0, 5), ("POP AF"    , Z80CPU::pop_af     , 0, 10), ("JP P,"      , Z80CPU::jp_p_nn     , 2, 10), ("DI"         , Z80CPU::di            , 0,  4), ("CALL P,"   , Z80CPU::call_p_nn     , 2, 10), ("PUSH AF"   , Z80CPU::push_af       , 0, 11), ("OR"         , Z80CPU::or_n          , 1,  7), ("RST 30h"   , Z80CPU::rst_30h       , 0, 11), ("RET M"     , Z80CPU::ret_m         , 0,  5), ("LD SP, HL" , Z80CPU::ld_sp_hl      , 0,  6), ("JP M,"      , Z80CPU::jp_m_nn       , 2, 10), ("EI"       , Z80CPU::ei            , 0, 4), ("CALL M," , Z80CPU::call_m_nn     , 2, 10), ("IY"      , Z80CPU::iy            , 0,  0), ("CP"        , Z80CPU::cp_n          , 1, 7), ("RST 38h" , Z80CPU::rst_38h       , 0, 11)  /* f0 */
 ];
 
@@ -3966,6 +3966,11 @@ impl Z80CPU {
         } else {
             0
         }
+    }
+
+    fn jp_ptr_hl(&mut self, _bus: &mut dyn Bus) -> u8 {
+        self.pc = (u16::from(self.h) << 8) + u16::from(self.l);
+        0
     }
 
     fn jp_pe_nn(&mut self, bus: &mut dyn Bus) -> u8 {
@@ -9454,6 +9459,24 @@ mod tests {
         assert_eq!(cpu.sp, 0x4ffe);
         assert_eq!(1 + cpu.t_cycles, 5);
         assert_eq!(disasm, "BAAD: RET PE");
+    }
+
+    #[test]
+    fn test_jp_ptr_hl() {
+        let mut cpu = Z80CPU::new();
+        let mut mock_bus = MockBus::new();
+        mock_bus.expect_read().with(eq(0)).returning(|_| 0xe9);
+
+        cpu.reset();
+        let disasm = &cpu.get_next_instructions(&mock_bus, 1)[0];
+        cpu.t_cycles = 0;
+        cpu.h = 0xba;
+        cpu.l = 0xad;
+        cpu.clock(&mut mock_bus);
+
+        assert_eq!(cpu.pc, 0xbaad);
+        assert_eq!(1 + cpu.t_cycles, 4);
+        assert_eq!(disasm, "0000: JP (HL)");
     }
 
     #[test]
